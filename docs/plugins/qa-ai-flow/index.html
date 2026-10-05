@@ -84,7 +84,9 @@
 <p><b>What happens:</b></p>
 <ol>
 <li>Asks once if you have a PRD (paste text or a <code>.md</code>/<code>.txt</code> file). Requirement IDs from the PRD are reused when it has its own numbering.</li>
-<li>Asks a few context questions, and reads the Figma file if you gave a link and have access. Without access it analyses the screenshot only.</li>
+<li>Asks only the app type and an optional Figma link. The test tool is always Playwright, so it never asks about tooling.</li>
+<li>Reads the Figma file if you gave a link and have access. Without access it analyses the screenshot only.</li>
+<li>Marks every test case <code>Automatable: Yes — Playwright</code> or <code>No — reason</code>, even if your team runs it by hand today.</li>
 <li>Writes test cases covering UI elements, states, interactions, edge cases and accessibility.</li>
 </ol>
 <p><b>Output:</b> <code>docs/test-cases/[page].md</code> (readable) and <code>testcases.json</code> (project root). Every test case gets a stable <code>tc_id</code> such as <code>TC-001</code>.</p>

@@ -78,16 +78,19 @@ zero overhead when skipped.
 Before analyzing the image, ask the user these questions in a single message:
 
 1. **App type** — "Is this a web app, mobile app, or desktop app?"
-2. **Test tooling** — "Do you have a preferred test tool or framework? (e.g. Playwright, Cypress, Selenium, manual only)"
-3. **Figma MCP link (optional)** — "Do you have a Figma MCP connection set
+2. **Figma MCP link (optional)** — "Do you have a Figma MCP connection set
    up, and if so, can you share the file/frame/selection link for this
    design? Skip this if you don't have Figma MCP connected — I'll work from
    the screenshot alone."
 
 Wait for their response before proceeding. Use the answers to:
 - Tailor step descriptions (e.g. "Tap" vs "Click" for mobile, viewport sizes for responsive TCs)
-- Populate the `Automatable` field with the correct tool name
-- If user says "manual only" or skips — mark all as `Automatable: No`
+- Do **not** ask about test tooling. The automation tool is always
+  **Playwright** (TypeScript), and every TC is judged for automation
+  suitability regardless of whether the team will first run it by hand.
+  Mark each TC's `Automatable` field by the rule in "Automatable rule" below.
+  If the user volunteers another tool or says "manual only", still apply the
+  rule: the flag records what *can* be automated, not how it is run today.
 - If a Figma link is given, run the "Figma MCP Structure Discovery" step
   below before Step 0. If no link is given, skip that step entirely and
   proceed exactly as today (screenshot-only).
@@ -601,7 +604,7 @@ Generate test cases using this exact format. Assign sequential IDs.
 - List "N/A" if no specific data needed
 
 **Automatable**
-- [Yes — [Tool name, e.g. Playwright] | No — [brief reason, e.g. requires visual verification / subjective UX judgment]]
+- [Yes — Playwright | No — [brief reason, e.g. requires visual verification / subjective UX judgment]]
 
 **Requirement**
 - [Requirement id(s) this TC traces to, e.g. US-C-007.2 — see Step -2]
@@ -618,6 +621,26 @@ than forming part of the test itself.
 This block carries the same value as the JSON's `source_requirement` (see
 the field mapping below). Both are written from the same in-memory data —
 the markdown is never parsed to build the JSON — so the two cannot drift.
+
+---
+
+## Automatable rule
+
+Every TC gets an explicit `Automatable` value, so teams that test manually
+today can still see at a glance which TCs are ready for Playwright.
+
+- **Yes — Playwright**: the expected result can be checked by a script —
+  visible text or state, URL change, element enabled/disabled, validation
+  message, network response, stored data, or a deterministic layout check.
+- **No — [reason]**: needs human judgement or something a script can't
+  control — subjective look and feel, animation smoothness, real
+  payment/OTP/captcha/email delivery, third-party redirects out of the
+  team's control, or physical device behavior.
+
+When unsure, choose `Yes` and add a one-line `**Note**` on what may need a
+workaround (e.g. "needs a seeded user"), instead of defaulting to `No`.
+This value is written to the `automatable` field in `testcases.json` and is
+what `playwright-from-testcases` reads to pick TCs to automate.
 
 ---
 
@@ -742,7 +765,7 @@ The markdown file should contain:
    ```
    **Generated:** [date]
    **App type:** [web / mobile / desktop]
-   **Test tool:** [tool name or Manual]
+   **Test tool:** Playwright
    ```
 3. All generated test cases in the standard TC format
 
