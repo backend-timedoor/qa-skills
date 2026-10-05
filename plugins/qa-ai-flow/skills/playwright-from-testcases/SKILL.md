@@ -114,7 +114,6 @@ like a spec, not a summary.
 ## Instruksi Implementasi — [Module Name]
 
 **Source test cases:** TC-001, TC-003, TC-005 (N of M total in module)
-**App surface:** [Frontend | Strapi Admin Panel] — from which generator produced these TCs (see CLAUDE.md's Flow Overview / Auth Method Detection)
 **Discovery source:** Frontend: [Repo | Staging | Figma (predicted, unverified)] · Backend: [Repo | API docs | Live probe] — decided in Step 0's "Resolve discovery mode"
 **Target files:**
 - POM: e2e/pages/[Feature]Page.ts
@@ -178,17 +177,10 @@ overwriting, same resumability convention as `figma-testcase-generator`.
 Once the Instruksi doc is saved, follow `CLAUDE.md`'s generation process
 exactly — this skill does not replace it, it feeds it:
 
-1. **Auth check** — if any TC in this module needs a logged-in state, branch
-   on the module's app surface (recorded in the Instruksi doc's **App
-   surface** field):
-   - If the TC's source was `strapi_generate_testcases_v2.py` (module/steps
-     mention "Admin Panel"), use `CLAUDE.md`'s Strapi Admin Panel Auth
-     template.
-   - Otherwise (source was `figma-testcase-generator`), use whichever
-     frontend auth template (NextAuth / Strapi JWT / OAuth) is already
-     detected in `CLAUDE.md`.
-   - If the relevant surface's method isn't detected yet, run `CLAUDE.md`'s
-     Auth Method Detection checklist for that surface first.
+1. **Auth check** — if any TC in this module needs a logged-in state, use whichever
+   auth template (NextAuth / Strapi JWT / OAuth) is already detected in
+   `CLAUDE.md`. If the method isn't detected yet, run `CLAUDE.md`'s
+   Auth Method Detection checklist first.
 2. **Map frontend routes, backend endpoints, and selectors for real**
    (replacing the TODOs from Step 3 above) — branch on the Instruksi doc's
    **Discovery source** field:
@@ -222,11 +214,8 @@ Backend Discovery, and error handling.
 
 ### Frontend Discovery (staging mode)
 
-⚠️ **Unverified** — written from
-the plugin docs page;
-confirm against a real staging site before treating it as stable, same
-convention as this repo's other not-yet-live-tested sections (e.g. the
-Strapi Admin Panel auth template in `CLAUDE.md`).
+⚠️ **Unverified** — confirm against a real staging site before treating
+this section as stable.
 
 Used when the Instruksi doc's Discovery source for Frontend is "Staging".
 

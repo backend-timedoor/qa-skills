@@ -123,8 +123,7 @@ already-generated module?"
 - If the user mentions a requirement ID (`REQ-n`, or a PRD-native id like
   `US-C-007` — see Step -2) as the reason for the re-check: that's the
   PRD-driven lookup path, which is **not implemented yet** (blocked on `source_requirement` being exercised
-  against a real PRD+Figma session — see
-  the unverified-items list). Tell the user
+  against a real PRD+Figma session). Tell the user
   this path isn't built, and ask them to name the affected module/page and
   component/area instead, so the design-driven path below can be used.
 

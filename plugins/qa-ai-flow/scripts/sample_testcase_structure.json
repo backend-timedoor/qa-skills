@@ -10,7 +10,7 @@
     "status_safari": "Not started",
     "expected_result": "Form shows validation error for summary field and entry is not saved",
     "steps_to_reproduce": [
-      "Navigate to Blog Post content type in Admin Panel",
+      "Navigate to Blog Post content type",
       "Click 'Create New Entry'",
       "Leave summary field empty or blank",
       "Click 'Save'"

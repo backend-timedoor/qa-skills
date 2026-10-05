@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 """
-Thin wrapper exposing the two scriptable steps of the qa-ai-flow pipeline
-(Step 1 — generate, Step 2 — upload/sync) under one discoverable command.
-Step 3 (Playwright automation) is skill-only — see
-the playwright-from-testcases skill — and has no
-script to wrap here.
+Thin wrapper exposing the scriptable Notion steps of the qa-ai-flow pipeline
+(upload and result sync) under one discoverable command. Test-case
+generation and Playwright automation are skill-only.
 
 Usage:
-  python3 run.py generate --schema-root . --out ...
   python3 run.py upload --dry-run
   python3 run.py sync-results --results ...
 
@@ -22,15 +19,14 @@ import sys
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
 SCRIPTS = {
-    "generate": os.path.join(ROOT, "strapi_generate_testcases_v2.py"),
     "upload": os.path.join(ROOT, "upload_testcases_to_notion.py"),
     "sync-results": os.path.join(ROOT, "update_test_results.py"),
 }
 
 def main():
     parser = argparse.ArgumentParser(
-        description="qa-ai-flow — unified entry point for Step 1 (generate) and Step 2 (upload/sync-results).",
-        usage="run.py {generate,upload,sync-results} [args...]",
+        description="qa-ai-flow — entry point for the Notion upload and result-sync scripts.",
+        usage="run.py {upload,sync-results} [args...]",
     )
     parser.add_argument("subcommand", choices=SCRIPTS.keys())
     parser.add_argument("args", nargs=argparse.REMAINDER)

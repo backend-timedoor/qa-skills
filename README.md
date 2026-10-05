@@ -1,6 +1,6 @@
 # qa-skills
 
-Claude Code plugins for QA: turn Figma designs or Strapi schemas into test cases, upload them to Notion, and generate Playwright automation.
+Claude Code plugins for QA: turn Figma designs into test cases, upload them to Notion, and generate Playwright automation.
 
 ## Install (3 commands, inside Claude Code)
 
@@ -19,7 +19,7 @@ Claude Code plugins for QA: turn Figma designs or Strapi schemas into test cases
 | | `notion-testcase-uploader` | Upload test cases to Notion, update after re-check, sync Playwright results back |
 | | `playwright-from-testcases` | `testcases.json` to POM + Playwright specs |
 
-The Strapi generator and Notion scripts are in `plugins/qa-ai-flow/scripts/`.
+The Notion scripts are in `plugins/qa-ai-flow/scripts/`.
 
 ## Prerequisites
 

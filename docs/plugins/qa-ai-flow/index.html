@@ -12,7 +12,7 @@
 <main>
 <p class="crumbs"><a href="../../">Home</a> / qa-ai-flow</p>
 <h1>qa-ai-flow <span class="badge">v0.1.0</span></h1>
-<p>Turn Figma designs or Strapi schemas into test cases, upload them to Notion, and generate Playwright automation that traces back to each test case.</p>
+<p>Turn Figma designs into test cases, upload them to Notion, and generate Playwright automation that traces back to each test case.</p>
 
 <h2>Install</h2>
 <pre><code>/plugin install qa-ai-flow@qa-skills</code></pre>
@@ -23,7 +23,7 @@
 <table>
 <tr><th>Step</th><th>Skill / script</th><th>Output</th></tr>
 <tr><td>0. Setup</td><td><code>setup-qa-ai-flow</code></td><td>config, <code>.env</code>, <code>e2e/</code> scaffold</td></tr>
-<tr><td>1. Test cases</td><td><code>figma-testcase-generator</code> (Figma, PRD) or <code>strapi_generate_testcases_v2.py</code> (Strapi Admin)</td><td><code>testcases.json</code>, <code>docs/test-cases/*.md</code></td></tr>
+<tr><td>1. Test cases</td><td><code>figma-testcase-generator</code> (Figma, PRD)</td><td><code>testcases.json</code>, <code>docs/test-cases/*.md</code></td></tr>
 <tr><td>2. Notion</td><td><code>notion-testcase-uploader</code> (runs <code>upload_testcases_to_notion.py</code>)</td><td>one Notion page per test case</td></tr>
 <tr><td>3. Automation</td><td><code>playwright-from-testcases</code></td><td>Page Objects + specs with <code>// TC-ID</code> comments</td></tr>
 <tr><td>4. Results</td><td><code>notion-testcase-uploader</code> (sync mode)</td><td><code>Status Automation</code> in Notion</td></tr>
@@ -60,7 +60,6 @@
 <ul>
 <li><a href="#u-setup">1. setup-qa-ai-flow</a></li>
 <li><a href="#u-figma">2. figma-testcase-generator</a></li>
-<li><a href="#u-strapi">2b. Strapi test cases (script)</a></li>
 <li><a href="#u-notion">3. notion-testcase-uploader</a></li>
 <li><a href="#u-pw">4. playwright-from-testcases</a></li>
 </ul>
@@ -91,11 +90,6 @@
 <p><b>Re-check mode</b> (no image needed) when a design or requirement changed:</p>
 <pre><code>Re-check test cases for the Card component, its states changed</code></pre>
 <p>It finds the matching test cases by module name, shows old vs new one at a time, and writes back only the ones you approve. <code>tc_id</code>s stay the same. It does not touch Notion or Playwright files.</p>
-
-<h3 id="u-strapi">2b. Strapi Admin Panel test cases (script)</h3>
-<p><b>When:</b> you have the Strapi backend source and want Admin Panel test cases from its schemas. This is a script, not a skill, so ask Claude to run it from the plugin's <code>scripts/</code> folder.</p>
-<pre><code>python3 run.py generate --schema-root . --out testcases.json</code></pre>
-<p><code>--schema-root</code> is the folder that contains <code>src/api</code> and <code>src/components</code>. The output has the same format as the Figma generator, so the next steps work the same.</p>
 
 <h3 id="u-notion">3. notion-testcase-uploader</h3>
 <p><b>When:</b> <code>testcases.json</code> exists and you want one Notion page per test case, or want to update or sync results later. Needs <code>NOTION_TOKEN</code> and <code>NOTION_DATABASE_ID</code> in <code>.env</code>, and the database shared with your integration.</p>
