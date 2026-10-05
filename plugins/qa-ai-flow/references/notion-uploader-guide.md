@@ -74,6 +74,35 @@ The following fields are written **inside the page body** (not as database colum
 
 ---
 
+## Who edits what
+
+`testcases.json` is the source of truth for what a test case *says*. Notion is
+where the team records what *happened* when it was tested.
+
+| Column | Who writes it | Edit by hand in Notion? |
+|---|---|---|
+| Status Chrome / Firefox / Safari | QA, after manual testing | **Yes** — this is its purpose. Scripts never overwrite it. |
+| Status Automation | `update_test_results.py` | **No** — the next sync overwrites it. |
+| TC ID | Generator (`TC-001`) | **No** — it links the page to specs and results. Changing it breaks result sync. |
+| Automatable (optional column) | Generator, via `testcases.json` | **No** — change it in `testcases.json` or by re-check, then `--update`. |
+| Test Case Name, Module, Type, Source Requirement, Source Type | Generator | **No** — `--update` overwrites them. |
+| Page body (Expected Result, Steps, Test Data, Prerequisites, Note) | Generator | **No** — `--update` replaces the body, so manual edits are lost. |
+
+**Changing a test case's content** (steps, expected result): do it through
+`figma-testcase-generator` re-check mode, then run `--update --tc-ids ...`.
+Do not edit the Notion page, or the next update erases the change.
+
+**Manual and automated runs side by side:** record the manual result in
+`Status Chrome/Firefox/Safari` and let the sync fill `Status Automation`. If
+the two disagree (manual Pass, Automation Fail) it usually points to a
+selector or script problem, not a product bug.
+
+**Not automatable?** A test case with `Automatable: No` is still tracked and
+tested manually like any other; it is simply skipped by
+`playwright-from-testcases` and listed under "Manual-only".
+
+---
+
 ## JSON Format
 
 Prepare a file named `testcases.json` at the repo root (project root — see `--input` below). It must be a JSON array where each item has this structure:

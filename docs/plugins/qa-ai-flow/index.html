@@ -107,6 +107,15 @@
 <li><b>Update:</b> only the TC IDs you name. Manual <code>Status Chrome/Firefox/Safari</code> values are never overwritten.</li>
 <li><b>Sync results:</b> reads the Playwright JSON report and writes Pass/Fail/Skipped into <code>Status Automation</code>. Tests without a <code>// TC-xxx</code> comment are listed as untraceable.</li>
 </ol>
+<p><b>Who edits what in Notion:</b></p>
+<table>
+<tr><th>Column</th><th>Edit by hand?</th></tr>
+<tr><td>Status Chrome / Firefox / Safari</td><td><b>Yes.</b> QA records manual test results here. Scripts never overwrite it.</td></tr>
+<tr><td>Status Automation</td><td>No. Written by the result sync, and overwritten next time.</td></tr>
+<tr><td>TC ID</td><td>No. It links the page to specs and results.</td></tr>
+<tr><td>Automatable (optional)</td><td>No. Change it in <code>testcases.json</code>, then update.</td></tr>
+<tr><td>Title, Module, Type, page body</td><td>No. <code>--update</code> overwrites them. Revise content with re-check mode instead.</td></tr>
+</table>
 <p><b>Database columns and errors:</b> see <a href="https://github.com/backend-timedoor/qa-skills/blob/main/plugins/qa-ai-flow/references/notion-uploader-guide.md">the uploader guide</a>.</p>
 
 <h3 id="u-pw">4. playwright-from-testcases</h3>

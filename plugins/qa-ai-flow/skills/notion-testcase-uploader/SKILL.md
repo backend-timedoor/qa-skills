@@ -56,6 +56,13 @@ python3 ${CLAUDE_PLUGIN_ROOT}/scripts/update_test_results.py
 
 Tests without a `// TC-xxx` comment are reported as untraceable and skipped. Report those to the user.
 
+## Who edits what (remind the user when relevant)
+
+Only `Status Chrome/Firefox/Safari` are edited by hand in Notion (manual test results). `TC ID`,
+`Status Automation`, `Automatable`, and the page content come from the scripts and
+`testcases.json`; manual edits to them are lost or break result sync. To change a test case's
+content, use re-check mode and `--update`. Details: the "Who edits what" table in the guide.
+
 ## Report back
 
 State plainly what ran and the script's final counts (created / updated / skipped / failed). If
