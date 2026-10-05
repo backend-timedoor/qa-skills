@@ -299,6 +299,12 @@ When asked to write tests for a feature, follow this order:
 
 ### Step 0 — Resolve project paths, load progress, start from existing test cases, detect auth method
 
+**Clarify stack and topology first** — ask once, then record in
+`qa-ai-flow.config.json` (`stack`, `layout`): frontend (Next.js / Vue.js /
+WordPress / other), backend or admin (Laravel / WordPress / other), and
+whether the project is a monorepo, split repos, a single app, or has no repo
+access. Don't guess these from folder names.
+
 **Resolve `{backendRoot}` / `{frontendRoot}`:**
 ```
 1. If qa-ai-flow.config.json exists at repo root, load it and use its

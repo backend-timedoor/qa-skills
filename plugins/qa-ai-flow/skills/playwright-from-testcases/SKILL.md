@@ -35,9 +35,22 @@ TC ID and consistent across modules.
 
 ## Step 0 — Resolve paths, load progress, locate and load the input
 
-**Resolve project paths:** load `qa-ai-flow.config.json` if present at the
-repo root (see `CLAUDE.md`'s Step 0 for the resolution/heuristic logic); fall
-back to asking the user for `frontendRoot`/`backendRoot` if it's absent.
+**Clarify stack and topology first.** Before anything else, load
+`qa-ai-flow.config.json` if present. If it has `stack` and `layout`, state them
+back in one line ("Next.js + Laravel, monorepo") and ask only whether they are
+still correct. If the file or those fields are missing, ask once, in one go:
+- tech stack: frontend (Next.js / Vue.js / WordPress / other / none) and
+  backend or admin (Laravel / WordPress / other / none);
+- topology: monorepo / split repos / single app / no repo access (and the
+  `frontendRoot`/`backendRoot` paths when there is repo access).
+Persist the answers to `qa-ai-flow.config.json` (suggest running
+`setup-qa-ai-flow` if the project was never set up). The stack decides which
+route, selector and auth hints apply later (see `CLAUDE.md`'s Steps 1–3 and
+Auth Method Detection).
+
+**Resolve project paths:** use `frontendRoot`/`backendRoot` from the config
+(see `CLAUDE.md`'s Step 0 for the resolution/heuristic logic); ask the user for
+them only if they are absent and the topology has repo access.
 
 **Resolve discovery mode** (extends the above, doesn't replace it — decided
 once here, reused for the rest of the session):

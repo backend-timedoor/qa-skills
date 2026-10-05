@@ -16,7 +16,13 @@
     "    backendRoot:  '.'                     (this repo IS the backend)",
     "    frontendRoot: '../../my-frontend'     (sibling repo, one level up)",
     "",
-    "'layout' is a human-readable label only — nothing branches on its",
+    "'stack' records the tech stack, asked once at the start of setup:",
+    "  frontend: 'nextjs' | 'vue' | 'wordpress' | 'other' | 'none'",
+    "  backend:  'laravel' | 'wordpress' | 'other' | 'none'",
+    "The skills use it to pick the right route/selector/auth hints.",
+    "",
+    "'layout': 'monorepo' | 'split' | 'single-app' | 'no-repo-access'. It is",
+    "a human-readable label — nothing branches on its",
     "value, only on the resolved backendRoot/frontendRoot paths, so no",
     "special-casing is needed per topology.",
     "",
@@ -50,6 +56,10 @@
     "  host. Leave empty when using apiDocs.location (openapi/postman) or",
     "  backend repo access instead."
   ],
+  "stack": {
+    "frontend": "nextjs",
+    "backend": "laravel"
+  },
   "layout": "monorepo",
   "backendRoot": "../backend",
   "frontendRoot": "../frontend",

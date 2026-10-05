@@ -18,11 +18,18 @@ Templates live in `${CLAUDE_PLUGIN_ROOT}/templates/`.
 2. **Project CLAUDE.md** — if `CLAUDE.md` is absent at the project root, copy
    `templates/CLAUDE.md`. If one exists, don't overwrite; offer to append the qa-ai-flow section.
    The skills refer to this file's rules (POM, TC ID traceability, auth detection).
-3. **Config** — if `qa-ai-flow.config.json` is absent, copy `templates/qa-ai-flow.config.example.json`
-   and ask the user for: topology (monorepo / split / no repo access), `stagingUrl`, `apiBaseUrl`,
-   and the stack (frontend Next.js or Vue.js; backend Laravel or WordPress). Fill the Project Overview
-   table in the project's `CLAUDE.md` with the answers.
-   No repo access is normal: leave `frontendRoot`/`backendRoot` empty and use `stagingUrl`.
+3. **Clarify the project first, before creating any file.** If `qa-ai-flow.config.json` already has
+   `stack` and `layout`, show them and ask only "still correct?". Otherwise ask, in one go:
+   - **Tech stack:** frontend (Next.js / Vue.js / WordPress / other / none) and backend or admin
+     (Laravel / WordPress / other / none).
+   - **Topology:** monorepo (frontend and backend are folders of one repo) / split repos (separate
+     repos) / single app / no repo access. For monorepo or split, ask for the `frontendRoot` and
+     `backendRoot` paths.
+   - **Live environment:** `stagingUrl`, `apiBaseUrl`, and API docs type (OpenAPI / Postman / none).
+     Needed whenever repo access is missing.
+   Then copy `templates/qa-ai-flow.config.example.json` to `qa-ai-flow.config.json`, fill in the
+   answers (`stack`, `layout`, roots, URLs), and fill the Project Overview table in the project's
+   `CLAUDE.md` to match. No repo access is normal: leave the roots empty and use `stagingUrl`.
 4. **Env files** — copy `templates/notion.env.example` to `.env` and `templates/e2e.env.test.example`
    to `e2e/.env.test` if absent. Tell the user to fill in the values themselves
    (see `${CLAUDE_PLUGIN_ROOT}/scripts/GET_NOTION_CREDENTIALS.md`); never ask them to paste secrets into chat.
