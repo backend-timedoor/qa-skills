@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QA Skills</title>
+<meta name="description" content="Claude Code plugins for QA: test cases from Figma, Notion upload, Playwright automation.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><a href="./">qa-skills</a><a href="https://github.com/&lt;ORG&gt;/qa-skills">GitHub</a></header>
+<main>
+<h1>QA Skills</h1>
+<p>Claude Code plugins that take QA from design to running tests.</p>
+
+<h2 id="getting-started">Getting started</h2>
+<p>Run these inside Claude Code. Do step 1 once per machine.</p>
+<pre><code>/plugin marketplace add &lt;ORG&gt;/qa-skills</code></pre>
+<pre><code>/plugin install qa-ai-flow@qa-skills</code></pre>
+<p>Then, in your project folder:</p>
+<pre><code>/setup-qa-ai-flow</code></pre>
+<p>To get new versions later: <code>/plugin marketplace update qa-skills</code></p>
+
+<h2>Plugins</h2>
+<div class="card">
+  <h3><a href="plugins/qa-ai-flow/">qa-ai-flow</a> <span class="badge">v0.1.0</span></h3>
+  <p>Figma or Strapi to test cases, upload to Notion, generate Playwright tests.</p>
+</div>
+</main>
+<footer>MIT License</footer>
+<script>
+document.querySelectorAll('pre').forEach(function(p){
+  var b=document.createElement('button');b.className='copy';b.textContent='Copy';
+  b.onclick=function(){navigator.clipboard.writeText(p.innerText.replace(/Copy$/,'').trim()).then(function(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy'},1500)})};
+  p.appendChild(b);
+});
+</script>
+</body>
+</html>

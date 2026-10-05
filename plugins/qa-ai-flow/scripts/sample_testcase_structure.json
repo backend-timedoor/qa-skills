@@ -1,0 +1,46 @@
+[
+  {
+    "tc_id": "TC-001",
+    "title": "Create About Page entry fails when hero_label field is empty",
+    "module": "About Page",
+    "type": "Validation",
+    "automatable": "Yes",
+    "status_chrome": "Not started",
+    "status_firefox": "Not started",
+    "status_safari": "Not started",
+    "expected_result": "Form shows validation error for hero_label field and entry is not saved",
+    "steps_to_reproduce": [
+      "Navigate to About Page content type in Admin Panel",
+      "Click 'Create New Entry'",
+      "Leave hero_label field empty or blank",
+      "Click 'Save'"
+    ],
+    "test_data": "hero_label: (empty)",
+    "prerequisites": "User has access to create About Page entries",
+    "note": "",
+    "source_requirement": "",
+    "source_type": "figma"
+  },
+  {
+    "tc_id": "TC-002",
+    "title": "Remove hero_stats component from About Page entry",
+    "module": "About Page",
+    "type": "Functionality",
+    "automatable": "Yes",
+    "status_chrome": "Not started",
+    "status_firefox": "Not started",
+    "status_safari": "Not started",
+    "expected_result": "Component is removed and About Page entry is saved successfully",
+    "steps_to_reproduce": [
+      "Navigate to About Page content type",
+      "Open an entry with hero_stats components",
+      "Click delete/remove button on a component row",
+      "Click 'Save'"
+    ],
+    "test_data": "-",
+    "prerequisites": "About Page entry has at least one hero_stats component",
+    "note": "",
+    "source_requirement": "",
+    "source_type": "figma"
+  }
+]

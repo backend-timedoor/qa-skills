@@ -1,0 +1,12 @@
+{
+  "name": "qa-skills",
+  "description": "QA skills for Claude Code: test cases, Notion upload, Playwright automation.",
+  "owner": { "name": "Jhon Salya" },
+  "plugins": [
+    {
+      "name": "qa-ai-flow",
+      "source": "./plugins/qa-ai-flow",
+      "description": "Figma/Strapi to test cases, Notion upload, and Playwright automation."
+    }
+  ]
+}
