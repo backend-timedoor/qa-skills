@@ -55,12 +55,88 @@
     ├── pages/  tests/  helpers/  fixtures/
     └── playwright.config.ts</code></pre>
 
-<h2>How to use</h2>
-<pre><code>Generate test cases from this Figma screenshot for the login page</code></pre>
-<pre><code>Upload testcases.json to Notion</code></pre>
-<pre><code>Sync Playwright results to Notion</code></pre>
-<pre><code>Turn testcases.json into Playwright tests for the login module</code></pre>
+<h2 id="usage">How to use each skill</h2>
+<p>Use them in order the first time. Each skill reads the previous step's output, so you only need to name the page or module.</p>
+<ul>
+<li><a href="#u-setup">1. setup-qa-ai-flow</a></li>
+<li><a href="#u-figma">2. figma-testcase-generator</a></li>
+<li><a href="#u-strapi">2b. Strapi test cases (script)</a></li>
+<li><a href="#u-notion">3. notion-testcase-uploader</a></li>
+<li><a href="#u-pw">4. playwright-from-testcases</a></li>
+</ul>
+
+<h3 id="u-setup">1. setup-qa-ai-flow</h3>
+<p><b>When:</b> once per project, before anything else. Safe to re-run; existing files are kept, never overwritten.</p>
+<pre><code>/setup-qa-ai-flow</code></pre>
+<p><b>What happens:</b></p>
+<ol>
+<li>Checks Node, Python and <code>requests</code>.</li>
+<li>Creates <code>CLAUDE.md</code>, <code>qa-ai-flow.config.json</code>, <code>.env</code>, <code>e2e/.env.test</code> and the <code>e2e/</code> Playwright scaffold, then installs Playwright.</li>
+<li>Asks for your <code>stagingUrl</code> and <code>apiBaseUrl</code>. No repo access is fine.</li>
+</ol>
+<p><b>Then you:</b> fill in <code>.env</code> and <code>e2e/.env.test</code> yourself. Never paste tokens into the chat.</p>
+
+<h3 id="u-figma">2. figma-testcase-generator</h3>
+<p><b>When:</b> you have a Figma screenshot (or a PRD) and need test cases. Best with one section per image; a very long page screenshot should be split first.</p>
+<p><b>Example prompts:</b></p>
+<pre><code>Generate test cases from this screenshot of the login page</code></pre>
+<pre><code>Generate test cases for the checkout form. Here is the PRD text and the Figma link.</code></pre>
+<p><b>What happens:</b></p>
+<ol>
+<li>Asks once if you have a PRD (paste text or a <code>.md</code>/<code>.txt</code> file). Requirement IDs from the PRD are reused when it has its own numbering.</li>
+<li>Asks a few context questions, and reads the Figma file if you gave a link and have access. Without access it analyses the screenshot only.</li>
+<li>Writes test cases covering UI elements, states, interactions, edge cases and accessibility.</li>
+</ol>
+<p><b>Output:</b> <code>docs/test-cases/[page].md</code> (readable) and <code>testcases.json</code> (project root). Every test case gets a stable <code>tc_id</code> such as <code>TC-001</code>.</p>
+<p><b>Re-check mode</b> (no image needed) when a design or requirement changed:</p>
 <pre><code>Re-check test cases for the Card component, its states changed</code></pre>
+<p>It finds the matching test cases by module name, shows old vs new one at a time, and writes back only the ones you approve. <code>tc_id</code>s stay the same. It does not touch Notion or Playwright files.</p>
+
+<h3 id="u-strapi">2b. Strapi Admin Panel test cases (script)</h3>
+<p><b>When:</b> you have the Strapi backend source and want Admin Panel test cases from its schemas. This is a script, not a skill, so ask Claude to run it from the plugin's <code>scripts/</code> folder.</p>
+<pre><code>python3 run.py generate --schema-root . --out testcases.json</code></pre>
+<p><code>--schema-root</code> is the folder that contains <code>src/api</code> and <code>src/components</code>. The output has the same format as the Figma generator, so the next steps work the same.</p>
+
+<h3 id="u-notion">3. notion-testcase-uploader</h3>
+<p><b>When:</b> <code>testcases.json</code> exists and you want one Notion page per test case, or want to update or sync results later. Needs <code>NOTION_TOKEN</code> and <code>NOTION_DATABASE_ID</code> in <code>.env</code>, and the database shared with your integration.</p>
+<p><b>Example prompts:</b></p>
+<pre><code>Check what test cases are already in Notion</code></pre>
+<pre><code>Upload testcases.json to Notion</code></pre>
+<pre><code>Update TC-045 and TC-046 in Notion after the re-check</code></pre>
+<pre><code>Sync Playwright results to Notion</code></pre>
+<p><b>What happens:</b></p>
+<ol>
+<li><b>Upload:</b> lists what is already there, shows a dry run, and asks you to confirm. Try one test case first (<code>--limit 1</code>) on a new database. Existing <code>tc_id</code>s are skipped, so it never duplicates.</li>
+<li><b>Update:</b> only the TC IDs you name. Manual <code>Status Chrome/Firefox/Safari</code> values are never overwritten.</li>
+<li><b>Sync results:</b> reads the Playwright JSON report and writes Pass/Fail/Skipped into <code>Status Automation</code>. Tests without a <code>// TC-xxx</code> comment are listed as untraceable.</li>
+</ol>
+<p><b>Database columns and errors:</b> see <a href="https://github.com/backend-timedoor/qa-skills/blob/main/plugins/qa-ai-flow/references/notion-uploader-guide.md">the uploader guide</a>.</p>
+
+<h3 id="u-pw">4. playwright-from-testcases</h3>
+<p><b>When:</b> test cases are ready and you want Playwright tests for a module.</p>
+<p><b>Example prompts:</b></p>
+<pre><code>Turn testcases.json into Playwright tests for the Login module</code></pre>
+<pre><code>Automate the test cases in docs/test-cases/checkout.md</code></pre>
+<p><b>What happens:</b></p>
+<ol>
+<li>Asks how to discover the app: repo source, a live staging URL, or the Figma file when the page is not built yet. It saves the answer in <code>qa-ai-flow.config.json</code>.</li>
+<li>Writes an implementation brief per module in <code>e2e/automation-instructions/[module].md</code> and tracks progress in <code>_progress.md</code>.</li>
+<li>Detects the auth method before writing any login helper.</li>
+<li>Writes Page Objects in <code>e2e/pages/</code> and specs in <code>e2e/tests/</code>. Each <code>test()</code> carries a <code>// TC-001</code> comment.</li>
+<li>Reports elements that have no <code>data-testid</code>. It never invents or renames them.</li>
+</ol>
+<p><b>Check the result:</b></p>
+<pre><code>cd e2e &amp;&amp; npx playwright test --list</code></pre>
+<p><b>Good to know:</b> in Figma mode (no real page yet) it stops after the Page Object and writes no spec, because selectors cannot be verified without a real DOM.</p>
+
+<h3>Full example run</h3>
+<ol>
+<li><code>/setup-qa-ai-flow</code></li>
+<li>"Generate test cases from this screenshot of the login page" (attach image)</li>
+<li>"Upload testcases.json to Notion"</li>
+<li>"Turn testcases.json into Playwright tests for the Login module"</li>
+<li>Run the tests, then "Sync Playwright results to Notion"</li>
+</ol>
 
 <h2>Source and changelog</h2>
 <table>
