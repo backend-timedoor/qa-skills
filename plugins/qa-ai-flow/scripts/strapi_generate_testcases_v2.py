@@ -692,7 +692,7 @@ class TestCaseGenerator:
             )
 
         # 6. Generic CRUD test cases
-        # Strapi singleType content types (e.g. "About Page") have exactly one
+        # Strapi singleType content types (e.g. "Blog Post") have exactly one
         # entry, edited in place — there is no list view and no delete
         # affordance the way collectionType has. Branch accordingly.
         if kind == 'singleType':

@@ -405,11 +405,11 @@ can meaningfully change: `title`, `expected_result`,
 a time, old vs. new, omitting unchanged fields:
 
 ```
-TC-001 — "Back to business" link navigates to the Processed Pineapple business page
+TC-001 — "Back to products" link navigates to the Product A page
 
   expected_result:
-    - old: Clicking "Back to business" navigates to /en/business/processed-pineapple.
-    + new: Clicking "Back to business" navigates to /en/business/example-product.
+    - old: Clicking "Back to products" navigates to /en/products/product-a.
+    + new: Clicking "Back to products" navigates to /en/products/product-b.
 
   Apply this revision? (yes/no)
 ```

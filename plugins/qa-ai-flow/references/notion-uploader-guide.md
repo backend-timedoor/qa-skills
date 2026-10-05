@@ -249,9 +249,9 @@ Found 12 existing TC ID(s) already in the database.
 
 Uploading 261 test case(s) to Notion database 2f8ae2ee...
 
-[  1/261] Create About Page entry fails when hero_label field is empty
+[  1/261] Create Blog Post entry fails when summary field is empty
          ⏭ Skipped — TC-001 already exists in Notion
-[  2/261] Remove hero_stats component from About Page entry
+[  2/261] Remove gallery component from Blog Post entry
          ✓ Created
 
 ============================================================
