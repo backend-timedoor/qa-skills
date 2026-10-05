@@ -19,7 +19,9 @@ Templates live in `${CLAUDE_PLUGIN_ROOT}/templates/`.
    `templates/CLAUDE.md`. If one exists, don't overwrite; offer to append the qa-ai-flow section.
    The skills refer to this file's rules (POM, TC ID traceability, auth detection).
 3. **Config** — if `qa-ai-flow.config.json` is absent, copy `templates/qa-ai-flow.config.example.json`
-   and ask the user for: topology (monorepo / split / no repo access), `stagingUrl`, `apiBaseUrl`.
+   and ask the user for: topology (monorepo / split / no repo access), `stagingUrl`, `apiBaseUrl`,
+   and the stack (frontend Next.js or Vue.js; backend Laravel or WordPress). Fill the Project Overview
+   table in the project's `CLAUDE.md` with the answers.
    No repo access is normal: leave `frontendRoot`/`backendRoot` empty and use `stagingUrl`.
 4. **Env files** — copy `templates/notion.env.example` to `.env` and `templates/e2e.env.test.example`
    to `e2e/.env.test` if absent. Tell the user to fill in the values themselves

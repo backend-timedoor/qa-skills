@@ -135,7 +135,7 @@ convention or whose page-prefix disagrees with their parent frame; use
   section.
 
 **Endpoints to verify:**
-- Backend discovery source = Repo: read `{backendRoot}/src/api/[guessed-content-type]/routes/`.
+- Backend discovery source = Repo: read `{backendRoot}/routes/api.php` (Laravel) and the controller and `app/Http/Requests/` class for the endpoint under test. For a WordPress backend, check the `/wp-json/` routes instead.
 - Backend discovery source = API docs or Live probe: see playwright-from-testcases/SKILL.md's "Backend Discovery (staging mode)" section.
 
 **Per test case:**
@@ -178,7 +178,7 @@ Once the Instruksi doc is saved, follow `CLAUDE.md`'s generation process
 exactly — this skill does not replace it, it feeds it:
 
 1. **Auth check** — if any TC in this module needs a logged-in state, use whichever
-   auth template (NextAuth / Strapi JWT / OAuth) is already detected in
+   auth template (Laravel session or token / NextAuth / WordPress / OAuth) is already detected in
    `CLAUDE.md`. If the method isn't detected yet, run `CLAUDE.md`'s
    Auth Method Detection checklist first.
 2. **Map frontend routes, backend endpoints, and selectors for real**
@@ -312,18 +312,18 @@ entirely in this mode.
 above; confirm against a real project before treating as stable.
 
 Used when the Instruksi doc's Discovery source for Backend is "API docs" or
-"Live probe". Deliberately framework-agnostic (Strapi, Laravel, or anything
-else) — unlike `CLAUDE.md`'s Strapi-specific auth/helper templates, which
-this section does not change (see the design spec's Non-Goals).
+"Live probe". Deliberately framework-agnostic (Laravel, WordPress, or anything
+else) — unlike `CLAUDE.md`'s Laravel-style auth/helper templates, which
+this section does not change.
 
 1. **`apiDocs.type: "openapi"` or `"postman"`**: parse the doc directly —
    both are machine-readable JSON/YAML, so endpoint paths, required
    fields, and auth scheme come straight out of it. Use these to write the
    `beforeAll`/`afterAll` seed/teardown helper (CLAUDE.md's Core Rule #5)
    and the login flow, instead of reading
-   `{backendRoot}/src/api/**/routes/*.ts`.
+   `{backendRoot}/routes/*.php`.
 2. **`apiDocs.type: "none"`**: fall back to live-probing — hit likely
-   list/detail endpoints for the content type under test against
+   list/detail endpoints for the resource under test against
    `apiBaseUrl` (from `qa-ai-flow.config.json`, gathered in Step 0's
    "Resolve discovery mode"), infer field shapes from actual JSON
    responses. Mark every seed/teardown helper generated this way with a
@@ -331,10 +331,10 @@ this section does not change (see the design spec's Non-Goals).
    confirmed against a schema — verify before relying on this in CI`.
 3. **Auth login flow**: credentials still come from `.env.test` (unchanged
    mechanism) — but which endpoint/payload shape to POST to comes from the
-   docs/probing step above, not an assumed Strapi `/api/auth/local` path.
+   docs/probing step above, not an assumed `/api/login` path.
    Write the discovered login call directly into the module's seed helper
-   rather than reusing `CLAUDE.md`'s Strapi-specific `strapi.helper.ts`
-   template verbatim when the backend isn't Strapi.
+   rather than reusing `CLAUDE.md`'s Laravel-style `api.helper.ts`
+   template verbatim when the backend isn't Laravel.
 
 ### Discovery error handling
 

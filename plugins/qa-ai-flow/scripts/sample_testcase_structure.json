@@ -10,7 +10,7 @@
     "status_safari": "Not started",
     "expected_result": "Form shows validation error for summary field and entry is not saved",
     "steps_to_reproduce": [
-      "Navigate to Blog Post content type",
+      "Navigate to the Blog Post form",
       "Click 'Create New Entry'",
       "Leave summary field empty or blank",
       "Click 'Save'"
@@ -32,7 +32,7 @@
     "status_safari": "Not started",
     "expected_result": "Component is removed and Blog Post entry is saved successfully",
     "steps_to_reproduce": [
-      "Navigate to Blog Post content type",
+      "Navigate to the Blog Post form",
       "Open an entry with gallery components",
       "Click delete/remove button on a component row",
       "Click 'Save'"
