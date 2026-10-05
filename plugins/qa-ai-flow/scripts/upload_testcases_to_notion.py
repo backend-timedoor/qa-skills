@@ -50,7 +50,7 @@ _load_env()
 # ---------------------------------------------------------------------------
 TOKEN = os.environ.get("NOTION_TOKEN", "")
 DB_ID = os.environ.get("NOTION_DATABASE_ID", "")
-INPUT_FILE = "../testcases.json"  # canonical file lives at the repo root, one level up from this script
+INPUT_FILE = "testcases.json"  # run from the project root; override with --input
 NOTION_VERSION = "2022-06-28"
 BASE_URL = "https://api.notion.com/v1"
 

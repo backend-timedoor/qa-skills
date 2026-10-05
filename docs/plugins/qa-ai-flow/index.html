@@ -24,8 +24,9 @@
 <tr><th>Step</th><th>Skill / script</th><th>Output</th></tr>
 <tr><td>0. Setup</td><td><code>setup-qa-ai-flow</code></td><td>config, <code>.env</code>, <code>e2e/</code> scaffold</td></tr>
 <tr><td>1. Test cases</td><td><code>figma-testcase-generator</code> (Figma, PRD) or <code>strapi_generate_testcases_v2.py</code> (Strapi Admin)</td><td><code>testcases.json</code>, <code>docs/test-cases/*.md</code></td></tr>
-<tr><td>2. Notion</td><td><code>upload_testcases_to_notion.py</code></td><td>one Notion page per test case</td></tr>
+<tr><td>2. Notion</td><td><code>notion-testcase-uploader</code> (runs <code>upload_testcases_to_notion.py</code>)</td><td>one Notion page per test case</td></tr>
 <tr><td>3. Automation</td><td><code>playwright-from-testcases</code></td><td>Page Objects + specs with <code>// TC-ID</code> comments</td></tr>
+<tr><td>4. Results</td><td><code>notion-testcase-uploader</code> (sync mode)</td><td><code>Status Automation</code> in Notion</td></tr>
 </table>
 <ul>
 <li>Every test case keeps one <code>tc_id</code> from generation to Notion to the spec comment.</li>
@@ -57,13 +58,14 @@
 <h2>How to use</h2>
 <pre><code>Generate test cases from this Figma screenshot for the login page</code></pre>
 <pre><code>Upload testcases.json to Notion</code></pre>
+<pre><code>Sync Playwright results to Notion</code></pre>
 <pre><code>Turn testcases.json into Playwright tests for the login module</code></pre>
 <pre><code>Re-check test cases for the Card component, its states changed</code></pre>
 
 <h2>Source and changelog</h2>
 <table>
 <tr><th>Version</th><th>Notes</th></tr>
-<tr><td>0.1.0</td><td>First plugin release: setup, Figma generator, Playwright generator, Notion scripts.</td></tr>
+<tr><td>0.1.0</td><td>First plugin release: setup, Figma generator, Playwright generator, Notion uploader and result sync.</td></tr>
 </table>
 <p><a href="https://github.com/&lt;ORG&gt;/qa-skills/tree/main/plugins/qa-ai-flow">Source on GitHub</a> · MIT License</p>
 </main>

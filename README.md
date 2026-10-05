@@ -18,9 +18,10 @@ Replace `<ORG>` with the GitHub org/user that hosts this repo.
 |---|---|---|
 | `qa-ai-flow` | `setup-qa-ai-flow` | One-time project setup (config, env, e2e scaffold) |
 | | `figma-testcase-generator` | Figma screenshot (+ PRD) to `testcases.json` |
+| | `notion-testcase-uploader` | Upload test cases to Notion, update after re-check, sync Playwright results back |
 | | `playwright-from-testcases` | `testcases.json` to POM + Playwright specs |
 
-Scripts (Strapi test-case generator, Notion upload and result sync) are in `plugins/qa-ai-flow/scripts/`.
+The Strapi generator and Notion scripts are in `plugins/qa-ai-flow/scripts/`.
 
 ## Prerequisites
 

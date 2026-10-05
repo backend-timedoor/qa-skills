@@ -974,10 +974,9 @@ def parse_args():
         help="Root directory containing src/api and src/components (default: cwd)"
     )
     parser.add_argument(
-        "--out", default="../testcases.json",
-        help="Output JSON path (default: ../testcases.json, i.e. the "
-             "repo-root canonical file, one level up from this script's own "
-             "directory; parent dirs are created if missing)"
+        "--out", default="testcases.json",
+        help="Output JSON path (default: testcases.json in the current "
+             "directory, i.e. the project root; parent dirs are created if missing)"
     )
     return parser.parse_args()
 

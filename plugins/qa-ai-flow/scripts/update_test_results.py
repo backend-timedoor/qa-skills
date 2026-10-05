@@ -24,8 +24,8 @@ And already have (from upload_testcases_to_notion.py):
 
 Usage:
   python3 update_test_results.py
-  python3 update_test_results.py --results ../playwright-report/results.json
-  python3 update_test_results.py --specs-dir ../e2e/tests
+  python3 update_test_results.py --results e2e/playwright-report/results.json
+  python3 update_test_results.py --specs-dir e2e/tests
   python3 update_test_results.py --dry-run
 """
 
@@ -63,8 +63,8 @@ DB_ID = os.environ.get("NOTION_DATABASE_ID", "")
 NOTION_VERSION = "2022-06-28"
 BASE_URL = "https://api.notion.com/v1"
 
-DEFAULT_RESULTS_FILE = os.environ.get("PLAYWRIGHT_JSON_REPORT", "playwright-report/results.json")
-DEFAULT_SPECS_DIR = os.environ.get("SPECS_DIR", "../e2e/tests")
+DEFAULT_RESULTS_FILE = os.environ.get("PLAYWRIGHT_JSON_REPORT", "e2e/playwright-report/results.json")
+DEFAULT_SPECS_DIR = os.environ.get("SPECS_DIR", "e2e/tests")
 
 REQUEST_DELAY = 0.35
 MAX_RETRIES = 3

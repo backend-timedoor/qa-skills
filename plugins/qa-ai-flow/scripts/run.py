@@ -22,9 +22,9 @@ import sys
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
 SCRIPTS = {
-    "generate": os.path.join(ROOT, "01-test-case-generator", "strapi_generate_testcases_v2.py"),
-    "upload": os.path.join(ROOT, "02-notion-test-case-uploader", "upload_testcases_to_notion.py"),
-    "sync-results": os.path.join(ROOT, "02-notion-test-case-uploader", "update_test_results.py"),
+    "generate": os.path.join(ROOT, "strapi_generate_testcases_v2.py"),
+    "upload": os.path.join(ROOT, "upload_testcases_to_notion.py"),
+    "sync-results": os.path.join(ROOT, "update_test_results.py"),
 }
 
 def main():
@@ -37,10 +37,9 @@ def main():
     parsed = parser.parse_args()
 
     script = SCRIPTS[parsed.subcommand]
-    # Run from the script's own directory so its default relative paths
-    # (e.g. the generate/upload scripts' ../testcases.json) resolve the
-    # same way as running it directly.
-    cwd = os.path.dirname(script)
+    # Run from the caller's directory (the project root) so .env and the
+    # default relative paths (testcases.json, e2e/tests) resolve there.
+    cwd = os.getcwd()
     result = subprocess.run([sys.executable, script, *parsed.args], cwd=cwd)
     sys.exit(result.returncode)
 
