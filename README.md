@@ -5,12 +5,10 @@ Claude Code plugins for QA: turn Figma designs or Strapi schemas into test cases
 ## Install (3 commands, inside Claude Code)
 
 ```
-/plugin marketplace add <ORG>/qa-skills
+/plugin marketplace add backend-timedoor/qa-skills
 /plugin install qa-ai-flow@qa-skills
 /setup-qa-ai-flow
 ```
-
-Replace `<ORG>` with the GitHub org/user that hosts this repo.
 
 ## What is inside
 
@@ -29,7 +27,7 @@ Node 18+, Python 3.9+ with `requests`, a Notion integration token (for upload), 
 
 ## Docs
 
-Guide page: `https://<ORG>.github.io/qa-skills/` (GitHub Pages, served from `/docs`).
+Guide page: `https://backend-timedoor.github.io/qa-skills/` (GitHub Pages, served from `/docs`).
 
 ## Updating
 
