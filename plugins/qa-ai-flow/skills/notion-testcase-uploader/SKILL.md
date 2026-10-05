@@ -20,6 +20,13 @@ column, flag or error needs detail.
    The database must also be shared with the integration.
 3. `python3 -c "import requests"` works; otherwise `pip install -r ${CLAUDE_PLUGIN_ROOT}/requirements.txt`.
 
+## Optional Automatable column
+
+If the database has a Select column named `Automatable` (options `Yes` / `No`), the uploader fills it
+from `testcases.json`; the script prints `Automatable column: found` or `not found` at startup. If
+the user wants the marker visible in Notion and it says "not found", tell them to add that column.
+Don't create it for them.
+
 ## Upload (new test cases)
 
 Uploading writes to the user's Notion workspace. Don't run a real upload before they agree.

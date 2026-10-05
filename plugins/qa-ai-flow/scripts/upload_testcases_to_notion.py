@@ -16,6 +16,9 @@ Notion DB must have these properties (exact names, exact types):
   TC ID               - rich_text (machine key, do not recreate as auto-ID)
   Source Requirement - rich_text (optional; empty when no PRD was used)
   Source Type        - select (optional; "figma" / "prd" / "figma+prd")
+  Automatable        - select, options "Yes" / "No" (optional; written only
+                       when this column exists in the database — detected at
+                       startup, so databases without it keep working)
 
 The following fields are written as page body content (not DB columns):
   Expected Result, Steps to Reproduce, Test Data, Prerequisites, Note
@@ -135,7 +138,43 @@ def build_page_children(tc: dict) -> list:
 
     return blocks
 
+# Set in main() after checking the database schema. Stays False when the
+# database has no "Automatable" select column, so older databases don't
+# fail with a validation_error.
+AUTOMATABLE_COLUMN = False
+
+def normalize_automatable(value):
+    """Map the JSON `automatable` value to 'Yes' / 'No', or None if unusable."""
+    text = str(value or "").strip().lower()
+    if text.startswith("yes"):
+        return "Yes"
+    if text.startswith("no"):
+        return "No"
+    return None
+
+def detect_automatable_column() -> bool:
+    """Return True if the database has an 'Automatable' property of type select."""
+    try:
+        res = requests.get(f"{BASE_URL}/databases/{DB_ID}", headers=headers(), timeout=15)
+        if res.status_code != 200:
+            print(f"⚠️  Could not read database schema ({res.status_code}); "
+                  f"skipping the optional Automatable column.")
+            return False
+        prop = res.json().get("properties", {}).get("Automatable")
+        return bool(prop and prop.get("type") == "select")
+    except requests.RequestException as e:
+        print(f"⚠️  Could not read database schema ({e}); skipping the optional Automatable column.")
+        return False
+
 def build_page_payload(tc: dict) -> dict:
+    payload = _build_page_payload_base(tc)
+    if AUTOMATABLE_COLUMN:
+        value = normalize_automatable(tc.get("automatable"))
+        if value:
+            payload["properties"]["Automatable"] = {"select": {"name": value}}
+    return payload
+
+def _build_page_payload_base(tc: dict) -> dict:
     return {
         "parent": {"database_id": DB_ID},
         "properties": {
@@ -485,6 +524,10 @@ def main():
     if not DB_ID:
         print("ERROR: NOTION_DATABASE_ID not set. Add it to .env or export it.")
         sys.exit(1)
+
+    global AUTOMATABLE_COLUMN
+    AUTOMATABLE_COLUMN = detect_automatable_column()
+    print(f"Automatable column: {'found, will be written' if AUTOMATABLE_COLUMN else 'not found, skipped'}")
 
     if args.list:
         print(f"Querying existing TC IDs in database {DB_ID[:8]}...")

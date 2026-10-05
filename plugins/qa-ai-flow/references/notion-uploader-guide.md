@@ -55,6 +55,7 @@ The database **must** have these exact property names and types:
 | Status Automation | Status      | Options: "Not started" / "Pass" / "Fail" / "Skipped". Written only by `update_test_results.py` (see "Syncing Results Back" below) — never set manually. |
 | Source Requirement | Text        | Optional — requirement id(s) this TC traces to, e.g. `US-C-007.2` or `REQ-3`. Empty when the TC wasn't generated from a PRD. |
 | Source Type      | Select        | Optional — `figma` / `prd` / `figma+prd`. Defaults to `figma` for TCs generated the original screenshot-only way. |
+| Automatable      | Select        | Optional — options `Yes` / `No`. Written only when this column exists, so databases without it keep working (the script checks at startup and prints `Automatable column: found` or `not found`). Marks which test cases can be automated with Playwright, even if they are tested manually today. For a `No`, the reason is in the page body's Note section. Do not edit by hand: it comes from `testcases.json` and is overwritten by `--update`. |
 
 **Why these two are real Notion columns, not just JSON metadata:** this is a
 lightweight Requirements Traceability Matrix (RTM). Standard QA practice is
@@ -62,8 +63,7 @@ that traceability stays queryable for the life of the test case — coverage
 reporting, impact analysis when a requirement changes, an audit trail —
 not just as a one-time check during generation. A link that only exists in
 the generation-session chat transcript stops being useful the moment the TC
-is uploaded, so these two fields are written as first-class columns instead
-of the "optional, not written to Notion" pattern used for `automatable`.
+is uploaded, so these two fields are written as first-class columns.
 
 The following fields are written **inside the page body** (not as database columns):
 - Expected Result
@@ -141,7 +141,7 @@ Prepare a file named `testcases.json` at the repo root (project root — see `--
 | `title`             | string           | ✅       | Test case name — maps to **Test Case Name** column |
 | `module`            | string           | ✅       | Maps to **Module** column (multi-select) |
 | `type`              | string           | ✅       | Maps to **Type** column (multi-select)   |
-| `automatable`       | string           | —       | `"Yes"` or `"No"`. Used by the `playwright-from-testcases` skill to decide which TCs to automate; not written to a Notion column. |
+| `automatable`       | string           | —       | `"Yes"` or `"No"`. Used by the `playwright-from-testcases` skill to decide which TCs to automate. Also written to the optional **Automatable** column when the database has one (see above). |
 | `status_chrome`     | string           | ✅       | Must match an existing Status option (e.g. `"Not started"`) |
 | `status_firefox`    | string           | ✅       | Same as above                            |
 | `status_safari`     | string           | ✅       | Same as above                            |

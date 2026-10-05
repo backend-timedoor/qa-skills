@@ -103,6 +103,7 @@
 <pre><code>Sync Playwright results to Notion</code></pre>
 <p><b>What happens:</b></p>
 <ol>
+<li><b>Optional column:</b> add a Select column named <code>Automatable</code> (Yes/No) to see which test cases can be automated. The uploader fills it only if the column exists.</li>
 <li><b>Upload:</b> lists what is already there, shows a dry run, and asks you to confirm. Try one test case first (<code>--limit 1</code>) on a new database. Existing <code>tc_id</code>s are skipped, so it never duplicates.</li>
 <li><b>Update:</b> only the TC IDs you name. Manual <code>Status Chrome/Firefox/Safari</code> values are never overwritten.</li>
 <li><b>Sync results:</b> reads the Playwright JSON report and writes Pass/Fail/Skipped into <code>Status Automation</code>. Tests without a <code>// TC-xxx</code> comment are listed as untraceable.</li>
@@ -113,7 +114,7 @@
 <tr><td>Status Chrome / Firefox / Safari</td><td><b>Yes.</b> QA records manual test results here. Scripts never overwrite it.</td></tr>
 <tr><td>Status Automation</td><td>No. Written by the result sync, and overwritten next time.</td></tr>
 <tr><td>TC ID</td><td>No. It links the page to specs and results.</td></tr>
-<tr><td>Automatable (optional)</td><td>No. Change it in <code>testcases.json</code>, then update.</td></tr>
+<tr><td>Automatable (optional Select: Yes/No)</td><td>No. Written from <code>testcases.json</code> when the column exists; change it there, then update.</td></tr>
 <tr><td>Title, Module, Type, page body</td><td>No. <code>--update</code> overwrites them. Revise content with re-check mode instead.</td></tr>
 </table>
 <p><b>Database columns and errors:</b> see <a href="https://github.com/backend-timedoor/qa-skills/blob/main/plugins/qa-ai-flow/references/notion-uploader-guide.md">the uploader guide</a>.</p>

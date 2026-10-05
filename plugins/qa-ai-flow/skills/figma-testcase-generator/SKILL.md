@@ -786,7 +786,7 @@ schema as `${CLAUDE_PLUGIN_ROOT}/scripts/sample_testcase_structure.json`):
 | `steps_to_reproduce` | The `**Steps:**` list, as a JSON array of strings |
 | `test_data` | The `**Test Data**` block |
 | `prerequisites` | The `**Prerequisites**` block |
-| `note` | Any `> ⚠️ Design Note` for this TC, or `""` if none |
+| `note` | Any `> ⚠️ Design Note` for this TC, or `""` if none. When `automatable` is `"No"`, also add `Not automatable: [reason from the **Automatable** field]` so the reason reaches Notion's Note section |
 | `source_requirement` | The `**Requirement**` block's value — requirement id(s) this TC traces to, using whichever scheme Step -2 settled on (PRD-native like `"US-C-007.2"`, or minted `"REQ-3"`). `""` if no PRD was provided, matching the omitted markdown block |
 | `source_type` | `"figma"` \| `"prd"` \| `"figma+prd"` — defaults to `"figma"` for the existing pure-vision path, so nothing existing breaks |
 
