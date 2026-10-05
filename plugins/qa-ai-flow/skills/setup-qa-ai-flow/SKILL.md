@@ -36,8 +36,15 @@ Templates live in `${CLAUDE_PLUGIN_ROOT}/templates/`.
 5. **e2e scaffold** — copy `templates/e2e/package.json` and `playwright.config.ts` into `e2e/`
    (absent files only), create `e2e/pages`, `e2e/tests`, `e2e/helpers`, `e2e/fixtures`.
    Then `cd e2e && npm install && npx playwright install chromium`.
-6. **.gitignore** — ensure these lines exist: `.env`, `.env.test`, `qa-ai-flow.config.json`,
-   `testcases*.json`, `docs/test-cases/`, `e2e/node_modules/`, `e2e/reports/`, `e2e/test-results/`, `e2e/.auth/`.
+6. **.gitignore** — ensure these lines exist (secrets and build artifacts only): `.env`, `.env.test`,
+   `qa-ai-flow.config.json`, `e2e/node_modules/`, `e2e/reports/`, `e2e/test-results/`, `e2e/playwright-report/`,
+   `e2e/.auth/`.
+   **Generated test cases are shared with the team, so do NOT ignore them.** `testcases.json`,
+   `docs/test-cases/`, and everything under `e2e/` except the artifacts above (pages, tests, helpers,
+   `automation-instructions/`) are meant to be committed. If the project's `.gitignore` already ignores
+   `testcases*.json` or `docs/test-cases/`, tell the user and offer to remove those lines (ask first, it is
+   their file). Remind them that `test_data` in test cases must never hold real credentials, because the
+   files are committed.
 7. **Verify** with `cd e2e && npx playwright test --list` (empty is fine; it must load without errors).
 8. **Report** a short table: item, status (created / kept / missing), and the next step:
    "Run figma-testcase-generator with a Figma screenshot, or playwright-from-testcases with testcases.json."

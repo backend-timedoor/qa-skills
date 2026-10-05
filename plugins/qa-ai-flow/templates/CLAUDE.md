@@ -592,8 +592,9 @@ TEST_USER_PASSWORD=TestPassword123!
 # WP_APP_PASSWORD=...          (if seeding through the WordPress REST API)
 ```
 
-Already covered by the repo root `.gitignore`:
+Keep these in the repo root `.gitignore` (secrets and build artifacts only):
 ```
+.env
 .env.test
 e2e/node_modules/
 e2e/.auth/
@@ -601,6 +602,12 @@ e2e/test-results/
 e2e/playwright-report/
 e2e/reports/
 ```
+
+**Do not ignore the generated test cases.** `testcases.json`, `docs/test-cases/`
+and the automation files under `e2e/` (pages, tests, helpers,
+`automation-instructions/`) are committed so the whole team shares them.
+Because they are committed, never put real credentials or personal data in a
+test case's `test_data`; use placeholders such as `admin@example.com`.
 
 ---
 
