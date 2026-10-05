@@ -409,7 +409,7 @@ TC-001 — "Back to business" link navigates to the Processed Pineapple business
 
   expected_result:
     - old: Clicking "Back to business" navigates to /en/business/processed-pineapple.
-    + new: Clicking "Back to business" navigates to /en/business/great-giant-pineapple.
+    + new: Clicking "Back to business" navigates to /en/business/example-product.
 
   Apply this revision? (yes/no)
 ```
