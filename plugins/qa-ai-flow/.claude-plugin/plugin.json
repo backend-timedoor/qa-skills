@@ -1,6 +1,6 @@
 {
   "name": "qa-ai-flow",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Generate test cases from a dev site, repo, Figma designs or a PRD, upload to Notion, automate with Playwright.",
   "author": { "name": "Jhon Salya" },
   "license": "MIT"
