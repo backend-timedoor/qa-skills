@@ -54,7 +54,7 @@ The database **must** have these exact property names and types:
 | Status Safari   | Status        | Options must include "Not started" |
 | Status Automation | Status      | Options: "Not started" / "Pass" / "Fail" / "Skipped". Written only by `update_test_results.py` (see "Syncing Results Back" below) — never set manually. |
 | Source Requirement | Text        | Optional — requirement id(s) this TC traces to, e.g. `US-C-007.2` or `REQ-3`. Empty when the TC wasn't generated from a PRD. |
-| Source Type      | Select        | Optional — `figma` / `prd` / `figma+prd`. Defaults to `figma` for TCs generated the original screenshot-only way. |
+| Source Type      | Select        | Optional — sources used, joined with `+` in the order `figma`, `site`, `repo`, `prd` (e.g. `site+repo`, `figma+prd`). Defaults to `figma` for TCs generated the original screenshot-only way. |
 | Automatable      | Select        | Optional — options `Yes` / `No`. Written only when this column exists, so databases without it keep working (the script checks at startup and prints `Automatable column: found` or `not found`). Marks which test cases can be automated with Playwright, even if they are tested manually today. For a `No`, the reason is in the page body's Note section. Do not edit by hand: it comes from `testcases.json` and is overwritten by `--update`. |
 
 **Why these two are real Notion columns, not just JSON metadata:** this is a
@@ -89,7 +89,7 @@ where the team records what *happened* when it was tested.
 | Page body (Expected Result, Steps, Test Data, Prerequisites, Note) | Generator | **No** — `--update` replaces the body, so manual edits are lost. |
 
 **Changing a test case's content** (steps, expected result): do it through
-`figma-testcase-generator` re-check mode, then run `--update --tc-ids ...`.
+`testcase-generator` re-check mode, then run `--update --tc-ids ...`.
 Do not edit the Notion page, or the next update erases the change.
 
 **Manual and automated runs side by side:** record the manual result in
@@ -151,7 +151,7 @@ Prepare a file named `testcases.json` at the repo root (project root — see `--
 | `prerequisites`     | string           | ✅       | Written in page body                     |
 | `note`              | string           | —        | Written in page body, can be empty `""` |
 | `source_requirement`| string           | —        | Requirement id(s) this TC traces to — PRD-native (`US-C-007.2`) when the PRD numbers its own requirements, otherwise minted (`REQ-3`). Maps to the **Source Requirement** column. Empty `""` if no PRD was used. |
-| `source_type`       | string           | —        | `"figma"` \| `"prd"` \| `"figma+prd"` — maps to **Source Type** column. Defaults to `"figma"` if omitted. |
+| `source_type`       | string           | —        | sources joined with `+` (`figma`, `site`, `repo`, `prd`; e.g. `"site+repo"`) — maps to **Source Type** column. Defaults to `"figma"` if omitted. |
 
 ---
 
@@ -226,7 +226,7 @@ see this warning.
 
 ## Updating existing pages
 
-When a re-check pass (the `figma-testcase-generator` skill's re-check mode)
+When a re-check pass (the `testcase-generator` skill's re-check mode)
 revises test cases that are already in Notion, `--update` patches the
 matching pages in place instead of skipping them or creating duplicates:
 

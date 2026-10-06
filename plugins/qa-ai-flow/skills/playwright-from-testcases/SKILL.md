@@ -3,7 +3,7 @@ name: playwright-from-testcases
 description: >
   Bridges finished QA test cases into Playwright automation — the missing link
   between "test cases exist" and "automated tests exist." Use this skill whenever
-  the user wants to turn a test case file (docs/test-cases/*.md from figma-testcase-generator,
+  the user wants to turn a test case file (docs/test-cases/*.md from testcase-generator,
   or the canonical testcases.json at the repo root)
   into runnable Playwright automation. Trigger on phrases like "automate these test cases",
   "generate Playwright from this TC file", "turn docs/test-cases/[page].md into tests",
@@ -22,7 +22,7 @@ document and (2) actual Playwright Page Object Model + spec files, following the
 conventions already defined in the project's `CLAUDE.md`.
 
 This skill is the bridge between:
-- **Fase 4 (input)** — test cases produced by `figma-testcase-generator`, living in
+- **Fase 4 (input)** — test cases produced by `testcase-generator`, living in
   `docs/test-cases/*.md` or `testcases.json` (repo root)
 - **Fase 5 (output)** — Playwright POM + spec files, following `CLAUDE.md`'s
   Step 1–5 generation process
@@ -63,7 +63,7 @@ once here, reused for the rest of the session):
 3. If neither `frontendRoot` nor `stagingUrl` is available — the page is
    designed but not built yet — ask the user for a Figma file/frame/
    selection link (same "give me the link" pattern
-   `figma-testcase-generator` uses). If given, persist it as `figmaLink` to
+   `testcase-generator` uses). If given, persist it as `figmaLink` to
    `qa-ai-flow.config.json`. Frontend discovery source = Figma — see
    "Frontend Discovery (Figma mode)" below. If no link either, ask the user
    directly which source to use rather than guessing.
@@ -181,7 +181,7 @@ its staging-mode counterpart, "browse before writing").
 
 Save to `e2e/automation-instructions/[module-kebab-case].md`. If
 the file exists (resuming/adding TCs), append new TC blocks rather than
-overwriting, same resumability convention as `figma-testcase-generator`.
+overwriting, same resumability convention as `testcase-generator`.
 
 ---
 
@@ -244,7 +244,7 @@ Used when the Instruksi doc's Discovery source for Frontend is "Staging".
    sitemap.xml starting at the homepage. This will miss auth-gated or
    deep-linked pages — for those, ask the user for the direct staging URL
    of the specific page/flow being automated, the same "give me the link"
-   pattern already used for Figma frames in `figma-testcase-generator`.
+   pattern already used for Figma frames in `testcase-generator`.
 5. **Selector discovery**: for the page currently being automated, inspect
    the live rendered DOM/accessibility tree. Same preference order
    `CLAUDE.md`'s Step 3 already defines — `data-testid` > `aria-label` >
@@ -278,7 +278,7 @@ verified ones — see Step 5 item 4 above, which skips spec generation
 entirely in this mode.
 
 1. **Fetch the layer tree**: call `get_metadata` on the `figmaLink` from
-   `qa-ai-flow.config.json` — the same tool `figma-testcase-generator`'s
+   `qa-ai-flow.config.json` — the same tool `testcase-generator`'s
    "Figma MCP Structure Discovery" step already uses and has verified
    (returns id/name/type/position/size for the node and its descendants).
    Do not reach for `get_design_context` in this flow, same as that skill's
@@ -357,7 +357,7 @@ before treating as stable.
 
 Applies to Frontend (staging and Figma), and Backend, discovery above.
 Fail loud, don't silently guess — same principle as this repo's Figma MCP
-failure handling (`figma-testcase-generator/SKILL.md`'s "Figma MCP
+failure handling (`testcase-generator/SKILL.md`'s "Figma MCP
 Structure Discovery" section).
 
 - **Staging URL unreachable** (down, wrong URL, network error): stop,

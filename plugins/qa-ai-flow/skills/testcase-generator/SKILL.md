@@ -1,25 +1,35 @@
 ---
-name: figma-testcase-generator
+name: testcase-generator
 description: >
-  Generate comprehensive QA test cases from Figma design screenshots. Use this skill
-  whenever a user uploads a Figma design image, section screenshot, or UI mockup and wants
-  to create test cases, QA cases, or test scenarios from it. Also trigger when the user
-  mentions "test case from design", "QA from Figma", "generate test cases", or uploads
-  any UI screenshot for testing purposes. Works best with per-section images — if the
-  user uploads a very long full-page screenshot, guide them to split it into sections first.
-  Also trigger — with no image required — when the user wants to re-check or update
+  Generate comprehensive QA test cases from whatever the user has: a Figma design
+  screenshot, a live dev/staging website, the project's source repo, a PRD, or any
+  combination. Use this skill whenever the user wants to create test cases, QA cases, or
+  test scenarios for a page, feature or module — whether they upload a Figma/UI
+  screenshot, give a dev or staging URL, point at repo code, or just name the feature.
+  Also trigger on "test case from design", "QA from Figma", "generate test cases",
+  "write test cases for [page] from the site/repo", or any UI screenshot uploaded for
+  testing. For screenshots, works best per section — if the user uploads a very long
+  full-page screenshot, guide them to split it first. Figma and PRD are optional; a
+  reachable dev site and/or repo is enough on its own.
+  Also trigger — with no input required — when the user wants to re-check or update
   test cases that already exist because a module/component/page changed, e.g. "re-check
   test cases for [module]", "recheck", "TCs changed", "update test cases for [module]",
   "the [component] states changed".
 ---
 
-# Figma Test Case Generator
+# Test Case Generator
 
-Generate thorough, structured QA test cases from Figma design images.
+Generate thorough, structured QA test cases from any mix of: Figma/UI screenshots,
+a live dev or staging site, the project's source repo, and a PRD. None of them is
+mandatory on its own — at least one **source of truth** (screenshot, site, or repo)
+is needed, and the PRD is always optional.
 
 ---
 
-## When the User Uploads an Image
+## Fresh Generation Flow
+
+Starts when the user wants test cases for a page, feature or module — with or
+without an uploaded image.
 
 ### Step -2 — PRD ingestion (optional, ask once, before Step -1)
 
@@ -75,13 +85,15 @@ zero overhead when skipped.
 
 ### Step -1 — Gather context (ask once, before generating)
 
-Before analyzing the image, ask the user these questions in a single message:
+Before analyzing anything, ask the user these questions in a single message:
 
 1. **App type** — "Is this a web app, mobile app, or desktop app?"
-2. **Figma MCP link (optional)** — "Do you have a Figma MCP connection set
-   up, and if so, can you share the file/frame/selection link for this
-   design? Skip this if you don't have Figma MCP connected — I'll work from
-   the screenshot alone."
+2. **Input sources** — "What can I work from? Any combination of: (a) a Figma
+   screenshot or UI image, (b) a live dev/staging URL, (c) the project repo
+   (local path), (d) a Figma MCP link. Also name the page/feature/module to
+   cover if no image is attached."
+3. **Auth** — only if source (b) is given: "Does the site need a login? If so,
+   which role(s)? Credentials must come from `e2e/.env.test`, never the chat."
 
 Wait for their response before proceeding. Use the answers to:
 - Tailor step descriptions (e.g. "Tap" vs "Click" for mobile, viewport sizes for responsive TCs)
@@ -91,18 +103,25 @@ Wait for their response before proceeding. Use the answers to:
   Mark each TC's `Automatable` field by the rule in "Automatable rule" below.
   If the user volunteers another tool or says "manual only", still apply the
   rule: the flag records what *can* be automated, not how it is run today.
-- If a Figma link is given, run the "Figma MCP Structure Discovery" step
-  below before Step 0. If no link is given, skip that step entirely and
-  proceed exactly as today (screenshot-only).
+- Resolve the **discovery sources** (below) and run each one the user gave:
+  - Figma link → "Figma MCP Structure Discovery"
+  - Dev/staging URL → "Live Site Discovery"
+  - Repo → "Repo Discovery"
+  - Screenshot → analysed directly in the Analysis Protocol
+- Defaults from `qa-ai-flow.config.json` (repo root) when present: `stagingUrl`
+  is the site URL and `frontendRoot` (resolved relative to that file) is the
+  repo path. If the file has them, confirm instead of asking again.
+- **No source at all** (no image, no reachable URL, no readable repo): stop and
+  ask for at least one. Do not generate test cases from the module name alone.
 
 Figma's remote MCP server is link-based — it cannot browse a file's tree on
 its own, which is why this link must be collected here up front rather than
 assumed later. Note MCP access requires a Figma Dev/Full seat, which may not
 be available to whoever is running this skill — if there's no link or no
-MCP connection, that's the expected common case, not an error; proceed
-screenshot-only.
+MCP connection, that's the expected common case, not an error; use the
+other sources.
 
-Skip this step if the user already provided this context in their message.
+Skip any question the user already answered in their message.
 
 ---
 
@@ -115,8 +134,9 @@ already-generated module?"
 - If the user says **fresh** (or doesn't mention re-checking at all): proceed
   exactly as documented below, no behavior change.
 - If the user says **re-check**: this session's input can be a new
-  screenshot, a text description of what changed, or both — there's no
-  requirement to upload a new image for a re-check. Skip straight to
+  screenshot, a text description of what changed, a pointer to the changed
+  page/code, or any of these — there's no requirement to upload a new image
+  for a re-check. Skip straight to
   "Re-check Mode" below instead of proceeding through the normal
   fresh-generation order — Re-check Mode tells you exactly when to run
   Step 0's image-length check (now, if a new screenshot was given) and
@@ -196,7 +216,69 @@ silently degrading.
 
 ---
 
-### Step 0 — Check image length
+### Live Site Discovery (only if a dev/staging URL was given in Step -1)
+
+Skip entirely without a URL. The site is the **ground truth for what the app
+actually does today** — real labels, real validation messages, real states.
+
+1. **Reach it.** Open the URL with the browser automation tools available in
+   this environment (Playwright MCP or Claude in Chrome). If it can't be
+   reached, tell the user why and continue with the other sources — do not
+   fabricate what the page "probably" shows.
+2. **Log in if needed**, using credentials from `e2e/.env.test` (or ones the
+   user supplies out-of-band). Never write credentials into test data, the
+   markdown, `testcases.json`, or the chat. Use `<TEST_USER_EMAIL>`-style
+   placeholders in `test_data`.
+3. **Scope to the named page/module.** Go to the page, then take an
+   accessibility snapshot (preferred over screenshots: it yields real roles,
+   names, labels, `data-testid`s, enabled/disabled state). Take a screenshot
+   only when layout or visual state matters.
+4. **Exercise states safely.** On a dev/staging site, interact to surface
+   states a static design cannot show: submit empty forms, enter invalid and
+   boundary values, trigger validation and error messages, open modals and
+   dropdowns, sort/filter/paginate, resize to mobile width. Record the *exact*
+   message text observed. **Do not** perform destructive or irreversible
+   actions (delete, payment, sending real emails/SMS) without the user's
+   explicit go-ahead; for those, derive the TC from the repo or PRD instead and
+   mark it with a note.
+5. **Check the network** for the page's API calls (method, path, status,
+   response shape) when error and empty-state TCs depend on them.
+6. Feed everything into the Analysis Protocol as **observed** facts. Where the
+   site visibly contradicts a Figma design or PRD, that is a conflict — see
+   the Reconciliation Protocol.
+
+---
+
+### Repo Discovery (only if a repo path was given in Step -1)
+
+Skip entirely without a repo. The repo is the **best source for rules a UI
+never shows** — validation limits, permissions, error branches, enum values.
+Read only what the named page/module touches; never dump the whole tree.
+
+1. **Locate the page.** Use `frontendRoot` from `qa-ai-flow.config.json` or the
+   path the user gave. Find the route/page file for the module (e.g. Next.js
+   `app/` or `pages/`, Vue router + views, WordPress template/block) using the
+   stack in the config's `stack` field.
+2. **Read the components it renders**: form fields, labels, placeholders,
+   button text, conditional rendering (`v-if`, `&&`, ternaries), disabled
+   conditions, and existing `data-testid`s.
+3. **Read the rules**: validation schemas (zod/yup/Vuelidate/Laravel
+   FormRequest), `maxLength`/`min`/`max`/regex, required fields, i18n message
+   files (exact error strings), role/permission checks and route guards.
+4. **Read the data contract** if `backendRoot` resolves: routes, controllers,
+   status codes and error responses for the page's API calls.
+5. Turn each rule into TCs (boundary values straight from the code: a
+   `maxLength={50}` yields 49/50/51-char TCs). Cite the file in the TC `note`
+   (e.g. `Rule from src/validation/signup.ts:12`).
+6. Feed everything into the Analysis Protocol as **declared-in-code** facts. A
+   rule in code that the site doesn't behave to (or the reverse) is a
+   conflict — see the Reconciliation Protocol.
+
+---
+
+### Step 0 — Check image length (only if a screenshot/image was uploaded)
+Skip this step entirely when there is no image.
+
 If the uploaded image appears to be a **full-page scroll** (very tall, multiple distinct sections stacked):
 - **Pause** and advise the user to split it into sections before proceeding.
 - Suggest splitting by logical UI sections: hero, form, table, modal, navigation, footer, etc.
@@ -208,9 +290,15 @@ If the image is a **focused section** (a single component, form, screen state, o
 
 ## Analysis Protocol (do this mentally before writing test cases)
 
-For every image, scan for the following and note what you find:
+For every screen or flow in scope — whether it comes from an image, the live
+site, the repo, or several — scan for the following and note what you find:
 
-### 0. Structural Signals (only if Figma MCP data was gathered above)
+### 0. Structural Signals (only if Figma MCP, live-site or repo data was gathered above)
+Prefer **observed** (live site) and **declared-in-code** (repo) values over
+guesses from an image: real labels, exact validation strings, real limits,
+real roles. Use image-only inference just for what no other source covers.
+
+For Figma MCP data specifically:
 Prefer MCP-sourced layer/frame/component/variant names and text-node
 content over visually-guessed labels when both are available — this spans
 all three structure-discovery tiers above (Variant properties,
@@ -219,7 +307,8 @@ Variants. Use sizing mode (hug vs fixed) as a signal for growth/overflow
 edge cases (long lists, long text).
 
 ### 1. UI Elements Inventory
-List every interactive and static element visible:
+Build it from the sources you have (accessibility snapshot, component source,
+or the image). List every interactive and static element visible:
 - Inputs (text, dropdown, checkbox, radio, date picker, file upload, etc.)
 - Buttons (primary, secondary, icon-only, disabled states)
 - Navigation (tabs, breadcrumbs, sidebar, pagination)
@@ -256,6 +345,29 @@ For every input/action, consider:
 
 ---
 
+## Cross-source Reconciliation (only if two or more sources were used)
+
+Runs after the Analysis Protocol, before the PRD Reconciliation Protocol. Skip
+if only one source was used. Sources: design (Figma/screenshot), site (live
+dev/staging), repo, PRD.
+
+- **Conflict** — two sources state the *same* fact differently (design says
+  max upload 5MB, site's error says 10MB, code says `MAX_SIZE = 8`). Only one
+  can be true in the running app, so stop and ask the user which is
+  authoritative before generating a TC for it. Default precedence to propose:
+  site (what runs today) > repo (what is coded) > PRD > design — but let the
+  user decide; it may be a bug the TC should catch.
+- **One-sided gap** — a fact in only one source (e.g. a validation rule that
+  exists in the repo but not in the PRD, or a design state the site doesn't
+  implement yet). Non-blocking: still generate the TC and flag it in `note`:
+  `> ⚠️ Source gap: in [repo|site|design|PRD] only — confirm intended`.
+- A TC whose expected result comes from the **repo or PRD but was not
+  observed** on the live site must say so in `note` (`Not yet verified on
+  site`), so Step 3's Playwright run treats a failure as "check first", not
+  "regression".
+
+---
+
 ## Reconciliation Protocol (only if a PRD was provided in Step -2)
 
 Runs after the Analysis Protocol, before writing output. Skip entirely if no
@@ -289,8 +401,8 @@ PRD was ingested — no behavior change from today.
 
 Everything below assumes Step -1.5 confirmed this is a re-check and the
 module is design-driven (no requirement ID). If the user gave a new screenshot,
-run Step 0's image-length check on it now; Figma MCP Structure Discovery
-and the Analysis Protocol are deliberately deferred until "Revision, diff
+run Step 0's image-length check on it now; the discovery sections (Figma MCP,
+Live Site, Repo) and the Analysis Protocol are deliberately deferred until "Revision, diff
 & per-TC approval" below, after the matched subset is narrowed.
 
 ### Matching — Module
@@ -395,8 +507,8 @@ Revision step next.
 ### Revision, diff & per-TC approval
 
 With the matched subset confirmed, re-run the existing Analysis Protocol
-above (and Figma MCP Structure Discovery, if the user gave a new Figma
-link this session) scoped to just these TCs and whatever new
+above (and whichever discovery sections apply — Figma MCP, Live Site, Repo —
+re-run against the changed page/code or new link this session) scoped to just these TCs and whatever new
 screenshot/description the user gave — same mechanics as fresh generation,
 narrower input.
 
@@ -766,6 +878,7 @@ The markdown file should contain:
    **Generated:** [date]
    **App type:** [web / mobile / desktop]
    **Test tool:** Playwright
+   **Sources:** [figma | site | repo | prd — whichever were used]
    ```
 3. All generated test cases in the standard TC format
 
@@ -788,7 +901,7 @@ schema as `${CLAUDE_PLUGIN_ROOT}/scripts/sample_testcase_structure.json`):
 | `prerequisites` | The `**Prerequisites**` block |
 | `note` | Any `> ⚠️ Design Note` for this TC, or `""` if none. When `automatable` is `"No"`, also add `Not automatable: [reason from the **Automatable** field]` so the reason reaches Notion's Note section |
 | `source_requirement` | The `**Requirement**` block's value — requirement id(s) this TC traces to, using whichever scheme Step -2 settled on (PRD-native like `"US-C-007.2"`, or minted `"REQ-3"`). `""` if no PRD was provided, matching the omitted markdown block |
-| `source_type` | `"figma"` \| `"prd"` \| `"figma+prd"` — defaults to `"figma"` for the existing pure-vision path, so nothing existing breaks |
+| `source_type` | The sources actually used, joined with `+` in this fixed order: `figma`, `site`, `repo`, `prd` — e.g. `"site"`, `"site+repo"`, `"figma+prd"`, `"figma+site+repo+prd"`. `"figma"` still means screenshot/Figma only, so existing files stay valid |
 
 `tc_id` numbering follows the same sequence as the markdown TC numbering
 (continues across images/sections in a session, never restarts).
@@ -817,6 +930,7 @@ schema as `${CLAUDE_PLUGIN_ROOT}/scripts/sample_testcase_structure.json`):
 - **Be specific in expected results** — "A green success toast appears saying 'Profile saved'" not "Success message appears"
 - **Use real-looking test data** — actual email addresses, realistic names, realistic edge case strings like `<script>alert(1)</script>` for XSS, `""` for empty, `99999` for max number
 - **Name what you can't see** — if a design implies a backend (e.g. a login form), include test cases for network errors, wrong credentials, locked accounts
+- **Prefer observed over assumed** — with a live site or repo, use the real label, message and limit verbatim instead of paraphrasing a design
 - **Call out design ambiguities** — if something in the design is unclear (e.g. "it's not clear if this field is required — recommend designer adds an asterisk"), add a note at the end of the section as `> ⚠️ Design Note: ...`
 
 ---

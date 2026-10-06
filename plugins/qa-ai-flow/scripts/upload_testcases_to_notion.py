@@ -15,7 +15,7 @@ Notion DB must have these properties (exact names, exact types):
   Status Safari      - status
   TC ID               - rich_text (machine key, do not recreate as auto-ID)
   Source Requirement - rich_text (optional; empty when no PRD was used)
-  Source Type        - select (optional; "figma" / "prd" / "figma+prd")
+  Source Type        - select (optional; sources joined by "+", e.g. "site", "site+repo", "figma+prd")
   Automatable        - select, options "Yes" / "No" (optional; written only
                        when this column exists in the database — detected at
                        startup, so databases without it keep working)

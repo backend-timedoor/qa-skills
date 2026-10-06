@@ -93,7 +93,7 @@ three connected steps. Each step hands off a file to the next:
 
 | Step | Tool | Input | Output |
 |---|---|---|---|
-| **1 — Generate test cases** | `figma-testcase-generator` (from Figma screenshots, optionally enriched with a PRD and/or Figma's remote MCP server — produces **frontend** TCs) | Figma image (+ optional PRD text, + optional Figma MCP file/frame link) | `testcases.json` (canonical path, repo root; + `docs/test-cases/[page].md` for the Figma path) |
+| **1 — Generate test cases** | `testcase-generator` (from any mix of a live dev/staging site, the repo, Figma screenshots and a PRD, optionally with Figma's remote MCP server — produces **frontend** TCs) | At least one of: dev/staging URL, repo path, Figma image or MCP link (+ optional PRD text) | `testcases.json` (canonical path, repo root; + `docs/test-cases/[page].md`) |
 | **2 — Upload to Notion** | `${CLAUDE_PLUGIN_ROOT}/scripts/upload_testcases_to_notion.py` | `testcases.json` | Notion database pages (one per test case) |
 | **3 — Automate with Playwright** | `playwright-from-testcases` (bridges to this file's Step 1–5 process below) | `testcases.json` (preferred) or `docs/test-cases/*.md` | POM + spec files in `e2e/` |
 
@@ -101,7 +101,7 @@ Every test case carries a `tc_id` (e.g. `TC-001`) from generation, through Notio
 into the Playwright spec's `// TC-001` comment — see the TC ID traceability rule
 below.
 
-> **Re-check mode (Step 1, Figma path only)** — `figma-testcase-generator`
+> **Re-check mode (Step 1)** — `testcase-generator`
 > also handles revising test cases after a PRD requirement or Figma design
 > changes, without re-running fresh generation. Trigger it with phrasing
 > like "re-check test cases for [module]" or "the Card component's states
@@ -129,7 +129,7 @@ below.
 > connected account and grant **Editor + Dev Mode** access — a valid
 > seat alone isn't enough if the file itself hasn't been shared. If the
 > connected account lacks a Dev/Full seat, or lacks access to the
-> specific file being queried, the figma-testcase-generator skill falls
+> specific file being queried, the testcase-generator skill falls
 > back to screenshot-only analysis with no behavior change. Step 3
 > (the `playwright-from-testcases` skill) also
 > uses this same connection for its Figma-mode discovery source (see that

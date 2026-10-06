@@ -1,6 +1,6 @@
 # qa-skills
 
-Claude Code plugins for QA: turn Figma designs into test cases, upload them to Notion, and generate Playwright automation.
+Claude Code plugins for QA: turn a dev site, repo, Figma design or PRD into test cases, upload them to Notion, and generate Playwright automation.
 
 ## Install (3 commands, inside Claude Code)
 
@@ -15,7 +15,7 @@ Claude Code plugins for QA: turn Figma designs into test cases, upload them to N
 | Plugin | Skills | Purpose |
 |---|---|---|
 | `qa-ai-flow` | `setup-qa-ai-flow` | One-time project setup (config, env, e2e scaffold) |
-| | `figma-testcase-generator` | Figma screenshot (+ PRD) to `testcases.json` |
+| | `testcase-generator` | Dev site, repo, Figma screenshot and/or PRD (any mix) to `testcases.json` |
 | | `notion-testcase-uploader` | Upload test cases to Notion, update after re-check, sync Playwright results back |
 | | `playwright-from-testcases` | `testcases.json` to POM + Playwright specs |
 
@@ -23,7 +23,7 @@ The Notion scripts are in `plugins/qa-ai-flow/scripts/`.
 
 ## Prerequisites
 
-Node 18+, Python 3.9+ with `requests`, a Notion integration token (for upload), and optionally the Figma remote MCP server.
+Node 18+, Python 3.9+ with `requests`, a Notion integration token (for upload), and optionally the Figma remote MCP server (only if you work from Figma).
 
 ## Docs
 

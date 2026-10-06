@@ -1,6 +1,6 @@
 ---
 name: setup-qa-ai-flow
-description: One-time (re-runnable) setup of the qa-ai-flow plugin inside a project. Checks Node, Python and requests, copies the project CLAUDE.md, qa-ai-flow.config.json, .env files and the e2e/ Playwright scaffold from the plugin templates, and installs Playwright. Use for /setup-qa-ai-flow, "set up qa-ai-flow", "configure the QA flow for this project", or before the first run of figma-testcase-generator or playwright-from-testcases in a repo.
+description: One-time (re-runnable) setup of the qa-ai-flow plugin inside a project. Checks Node, Python and requests, copies the project CLAUDE.md, qa-ai-flow.config.json, .env files and the e2e/ Playwright scaffold from the plugin templates, and installs Playwright. Use for /setup-qa-ai-flow, "set up qa-ai-flow", "configure the QA flow for this project", or before the first run of testcase-generator or playwright-from-testcases in a repo.
 ---
 
 # Setup qa-ai-flow
@@ -47,7 +47,7 @@ Templates live in `${CLAUDE_PLUGIN_ROOT}/templates/`.
    files are committed.
 7. **Verify** with `cd e2e && npx playwright test --list` (empty is fine; it must load without errors).
 8. **Report** a short table: item, status (created / kept / missing), and the next step:
-   "Run figma-testcase-generator with a Figma screenshot, or playwright-from-testcases with testcases.json."
+   "Run testcase-generator with a dev/staging URL, repo path or Figma screenshot, or playwright-from-testcases with testcases.json."
 
 ## Not in scope
 Detecting the app's auth method and generating tests — those belong to `playwright-from-testcases`.

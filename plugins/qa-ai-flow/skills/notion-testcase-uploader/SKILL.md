@@ -1,6 +1,6 @@
 ---
 name: notion-testcase-uploader
-description: Upload test cases from testcases.json to a Notion database (one page per test case), update pages after a re-check, and sync Playwright pass/fail results back into the Status Automation column. Use for "upload test cases to Notion", "push testcases.json to Notion", "update TC-045 in Notion", "sync Playwright results to Notion", "check what is already in Notion", or as Step 2 of the qa-ai-flow after figma-testcase-generator.
+description: Upload test cases from testcases.json to a Notion database (one page per test case), update pages after a re-check, and sync Playwright pass/fail results back into the Status Automation column. Use for "upload test cases to Notion", "push testcases.json to Notion", "update TC-045 in Notion", "sync Playwright results to Notion", "check what is already in Notion", or as Step 2 of the qa-ai-flow after testcase-generator.
 ---
 
 # Notion Test Case Uploader (Step 2)
@@ -13,7 +13,7 @@ column, flag or error needs detail.
 ## Preflight (every time)
 
 1. `testcases.json` exists at the project root. If not, tell the user to run
-   `figma-testcase-generator` first.
+   `testcase-generator` first.
 2. `.env` exists with `NOTION_TOKEN` and `NOTION_DATABASE_ID`. Check only that the keys are present
    (e.g. `grep -c '^NOTION_' .env`); **never print or ask for the values**. If missing, run
    `setup-qa-ai-flow`, or point the user to `${CLAUDE_PLUGIN_ROOT}/scripts/GET_NOTION_CREDENTIALS.md`.
