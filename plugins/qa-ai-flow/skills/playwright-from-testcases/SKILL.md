@@ -4,7 +4,8 @@ description: >
   Bridges finished QA test cases into Playwright automation — the missing link
   between "test cases exist" and "automated tests exist." Use this skill whenever
   the user wants to turn a test case file (docs/test-cases/*.md from testcase-generator,
-  or the canonical testcases.json at the repo root)
+  or the canonical testcases.json at the repo root, whatever source the test cases came
+  from: dev site, repo, Figma or PRD)
   into runnable Playwright automation. Trigger on phrases like "automate these test cases",
   "generate Playwright from this TC file", "turn docs/test-cases/[page].md into tests",
   "implement automation for [module]", "build the E2E scripts for this", or any
@@ -56,6 +57,11 @@ them only if they are absent and the topology has repo access.
 once here, reused for the rest of the session):
 1. If `frontendRoot` resolves to a real, readable directory, Frontend
    discovery source = Repo (unchanged, see `CLAUDE.md`'s Step 1/Step 3).
+   If `stagingUrl` is **also** set, Frontend discovery source = Repo +
+   Staging: read selectors and routes from the repo, then confirm them
+   against the live site (see "Frontend Discovery (staging mode)", item 3,
+   "Verify mode"). Repo alone can't prove a route renders or a selector
+   resolves; the site can.
 2. If it doesn't (missing, wrong path, or no repo access), ask the user for
    `stagingUrl`. If given, persist it to `qa-ai-flow.config.json`. Frontend
    discovery source = Staging — see "Frontend Discovery (staging mode)"
@@ -92,6 +98,19 @@ initialized in Step 6.
 
 If neither exists, ask the user which test case file/module to work from — do not invent test cases.
 
+**Read each TC's provenance** (from `testcases.json`; the markdown carries the
+same in its `Sources:` header and notes). Three fields matter:
+- `source_type` — which sources the TC came from (`figma`, `site`, `repo`,
+  `prd`, joined with `+`). A missing value means `figma` (older files).
+- `note` containing `Not yet verified on site` — the expected result came from
+  the repo, PRD or design and nobody has seen the live site do it.
+- `note` containing `Source gap` or a cited file (e.g. `Rule from
+  src/validation/signup.ts:12`) — carry these into the Instruksi doc so the
+  reasoning isn't lost.
+
+This decides how much to trust each TC's strings and how to read a failure
+(see Step 3's per-TC `Provenance` line and Step 6's triage list).
+
 ---
 
 ## Step 1 — Filter to automatable test cases
@@ -127,11 +146,15 @@ like a spec, not a summary.
 ## Instruksi Implementasi — [Module Name]
 
 **Source test cases:** TC-001, TC-003, TC-005 (N of M total in module)
-**Discovery source:** Frontend: [Repo | Staging | Figma (predicted, unverified)] · Backend: [Repo | API docs | Live probe] — decided in Step 0's "Resolve discovery mode"
+**Discovery source:** Frontend: [Repo | Repo + Staging (verified) | Staging | Figma (predicted, unverified)] · Backend: [Repo | API docs | Live probe] — decided in Step 0's "Resolve discovery mode"
 **Target files:**
 - POM: e2e/pages/[Feature]Page.ts
 - Spec: e2e/tests/[feature-name].spec.ts — omitted when Frontend discovery
   source is Figma; see "Frontend Discovery (Figma mode)" below
+
+**Unverified-on-site TCs:** [TC ids whose note says `Not yet verified on
+site`, or "None". A failure on first run for these means "check the TC against
+the site first", not "regression"]
 
 **Missing Automation IDs:** [list testable elements — per references/frontend-naming-guideline.md's Section 3 categories — found
 without a data-testid, e.g. "checkout_page_place_order_button — no
@@ -155,6 +178,11 @@ convention or whose page-prefix disagrees with their parent frame; use
 
 ### TC-001 — [Title]
 - **Test name pattern:** `[role] can [action] [subject]`
+- **Provenance:** [`source_type` from the TC, plus `verified on site` when it
+  includes `site` and the note doesn't say otherwise, or `NOT verified on site`.
+  Observed strings (labels, validation messages) from a `site` TC are used
+  verbatim in assertions; do not re-derive them. Selectors are still
+  discovered in Step 5, because the generator records behaviour, not locators]
 - **Preconditions / seed data:** [from prerequisites — translate into a
   beforeAll/API helper call if data setup is implied]
 - **Steps → Playwright actions:**
@@ -198,6 +226,8 @@ exactly — this skill does not replace it, it feeds it:
    (replacing the TODOs from Step 3 above) — branch on the Instruksi doc's
    **Discovery source** field:
    - Frontend = Repo: follow `CLAUDE.md`'s Step 1 and Step 3 as today.
+   - Frontend = Repo + Staging: do the Repo step, then the "Verify mode" in
+     "Frontend Discovery (staging mode)" below.
    - Frontend = Staging: follow "Frontend Discovery (staging mode)" below.
    - Frontend = Figma: follow "Frontend Discovery (Figma mode)" below.
    - Backend = Repo: follow `CLAUDE.md`'s Step 2 as today.
@@ -240,12 +270,12 @@ Used when the Instruksi doc's Discovery source for Frontend is "Staging".
    `baseURL` config (`e2e/playwright.config.ts`'s `BASE_URL` env var), so
    without this the tests would run against `localhost:3000` instead of
    the staging site discovery just ran against.
-4. **Route discovery**: crawl same-origin links reachable from nav/footer/
+3. **Route discovery**: crawl same-origin links reachable from nav/footer/
    sitemap.xml starting at the homepage. This will miss auth-gated or
    deep-linked pages — for those, ask the user for the direct staging URL
    of the specific page/flow being automated, the same "give me the link"
    pattern already used for Figma frames in `testcase-generator`.
-5. **Selector discovery**: for the page currently being automated, inspect
+4. **Selector discovery**: for the page currently being automated, inspect
    the live rendered DOM/accessibility tree. Same preference order
    `CLAUDE.md`'s Step 3 already defines — `data-testid` > `aria-label` >
    `getByRole` > `getByText` — just sourced from rendered HTML instead of
@@ -261,9 +291,25 @@ Used when the Instruksi doc's Discovery source for Frontend is "Staging".
    in the rendered HTML at all, don't fall back silently to text/xpath —
    record it under the Instruksi doc's **Missing Automation IDs** field
    (see Step 3 above), same as repo mode.
-6. Record discovered routes/selectors directly into the POM (CLAUDE.md's
+5. Record discovered routes/selectors directly into the POM (CLAUDE.md's
    Step 4) and spec (CLAUDE.md's Step 5) — same output shape as the
    repo-read path, only the discovery mechanism differs.
+
+**Verify mode (Repo + Staging).** When Frontend discovery source is Repo +
+Staging, the repo already gave you routes and selectors; use the site only to
+confirm them, not to rediscover:
+- Open each route the POM will `goto()` and confirm it renders (not 404, not a
+  redirect to login you didn't expect).
+- Resolve each repo-derived `getByTestId`/role locator against the live
+  accessibility snapshot. A locator that doesn't resolve is recorded under
+  **Missing Automation IDs** (or fixed, if the repo was just out of date with
+  what is deployed), never silently kept.
+- Log in with the credentials in `e2e/.env.test`, the same ones
+  `testcase-generator`'s Live Site Discovery uses. Do not ask for them again
+  or paste them anywhere.
+- Don't submit forms or trigger destructive actions here; that is what the
+  generated tests are for.
+- Set `BASE_URL` as in item 2 above.
 
 ### Frontend Discovery (Figma mode)
 
@@ -363,6 +409,10 @@ Structure Discovery" section).
 - **Staging URL unreachable** (down, wrong URL, network error): stop,
   report the failure to the user, do not proceed with guessed
   selectors/routes.
+- **Verify mode: a repo-derived route or locator doesn't resolve on the
+  site**: report it with the route/locator and the file it came from. Don't
+  guess a replacement. It usually means the deployed build differs from the
+  repo checkout.
 - **Route crawl finds nothing past the homepage** (e.g. everything is
   auth-gated): ask the user for direct URLs to the specific pages/flows
   being automated, rather than attempting to brute-force a login flow.
@@ -415,6 +465,10 @@ After writing files:
      with Frontend discovery source = Figma this run, with a reminder to
      re-run once the page ships (repo or staging access) to verify the
      predicted selectors and generate the spec file.
+   - **Unverified-on-site TCs** — list every TC id flagged `Not yet verified
+     on site`, with a reminder that a first-run failure on these should be
+     checked against the live site before it is reported as a bug (the TC's
+     expected result may be what's wrong). Omit when there are none.
    - **Missing Automation IDs** — if any processed module's Instruksi doc
      has non-"None" entries in its Missing Automation IDs field, surface a
      count and the list here, e.g. "3 elements missing data-testid — see

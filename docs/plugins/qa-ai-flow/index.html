@@ -128,10 +128,11 @@
 <pre><code>Automate the test cases in docs/test-cases/checkout.md</code></pre>
 <p><b>What happens:</b></p>
 <ol>
-<li>Asks how to discover the app: repo source, a live staging URL, or the Figma file when the page is not built yet. It saves the answer in <code>qa-ai-flow.config.json</code>.</li>
+<li>Asks how to discover the app: repo source, a live staging URL, both (repo selectors confirmed against the live site), or the Figma file when the page is not built yet. It saves the answer in <code>qa-ai-flow.config.json</code>.</li>
 <li>Writes an implementation brief per module in <code>e2e/automation-instructions/[module].md</code> and tracks progress in <code>_progress.md</code>.</li>
 <li>Detects the auth method before writing any login helper.</li>
 <li>Writes Page Objects in <code>e2e/pages/</code> and specs in <code>e2e/tests/</code>. Each <code>test()</code> carries a <code>// TC-001</code> comment.</li>
+<li>Reads where each test case came from. Test cases flagged <code>Not yet verified on site</code> are listed in the report, so a first-run failure is checked against the site before it is called a bug.</li>
 <li>Reports elements that have no <code>data-testid</code>. It never invents or renames them.</li>
 </ol>
 <p><b>Check the result:</b></p>
