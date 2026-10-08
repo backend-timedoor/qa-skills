@@ -11,15 +11,23 @@ export default {
   'IMG-001': (ev, ctx) => {
     const { imageKb, heroImageKb } = ctx.thresholds;
     const offenders = [];
+    const distinct = new Map();
     let count = 0;
     for (const p of livePages(ev)) {
       for (const i of p.images) {
         if (i.bytes == null) continue;
         const limit = (i.width >= HERO_MIN_WIDTH ? heroImageKb : imageKb) * 1024;
-        if (i.bytes > limit) { count++; offenders.push(p.url); }
+        if (i.bytes > limit) {
+          count++; offenders.push(p.url);
+          if (!distinct.has(i.src) || distinct.get(i.src).bytes < i.bytes) distinct.set(i.src, { src: i.src, bytes: i.bytes, page: p.url });
+        }
       }
     }
-    return count ? bad(`${count} image(s) over the size limit`, [...new Set(offenders)]) : ok();
+    if (!count) return ok();
+    const name = (src) => { try { return decodeURIComponent(new URL(src).pathname.split('/').filter(Boolean).pop() || src); } catch { return src; } };
+    const heaviest = [...distinct.values()].sort((a, b) => b.bytes - a.bytes).slice(0, 3)
+      .map(d => `${name(d.src)} ${Math.round(d.bytes / 1024)}KB on ${d.page}`).join(', ');
+    return bad(`${distinct.size} distinct image(s) over the size limit (${count} occurrence(s)); heaviest: ${heaviest}`, [...new Set(offenders)]);
   },
 
   'IMG-002': (ev) => verdict(

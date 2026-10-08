@@ -47,9 +47,9 @@ export async function captureEvidence({ config, creds, pagespeedKey, onProgress 
     const pages = await crawl({ baseUrl: config.baseUrl, pageCap: config.pageCap, extraUrls: config.extraUrls, fetchText, visit });
 
     const linkMap = buildLinkMap(pages);
-    const [probes, brokenLinks, mobile, desktop] = await Promise.all([
+    const [probes, links, mobile, desktop] = await Promise.all([
       probeSite(config.baseUrl, creds, timedFetch),
-      checkLinks(linkMap, authedFetch),
+      checkLinks(linkMap, authedFetch, { baseOrigin: new URL(config.baseUrl).origin }),
       fetchPagespeed(config.baseUrl, 'mobile', pagespeedKey, pagespeedFetch),
       fetchPagespeed(config.baseUrl, 'desktop', pagespeedKey, pagespeedFetch),
     ]);
@@ -60,7 +60,8 @@ export async function captureEvidence({ config, creds, pagespeedKey, onProgress 
       pages,
       site: {
         ...probes,
-        brokenLinks,
+        brokenLinks: links.broken,
+        unverifiedLinks: links.unverified,
         scripts: { captcha: live.some(p => p.scripts.captcha), ga: live.some(p => p.scripts.ga) },
         pagespeed: { mobile: mobile.score, desktop: desktop.score, error: mobile.error || desktop.error },
       },

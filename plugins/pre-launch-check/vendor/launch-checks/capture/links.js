@@ -1,24 +1,40 @@
-async function status(url, fetchFn) {
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+const errCode = (e) => e?.cause?.code || e?.name;
+
+async function attempt(url, fetchFn, method) {
   try {
-    let r = await fetchFn(url, { method: 'HEAD', redirect: 'follow' });
-    if ([403, 405, 501].includes(r.status)) r = await fetchFn(url, { method: 'GET', redirect: 'follow' });
-    return r.status;
-  } catch { return 0; }
+    let r = await fetchFn(url, { method, redirect: 'follow' });
+    if (method === 'HEAD' && [403, 405, 501].includes(r.status)) r = await fetchFn(url, { method: 'GET', redirect: 'follow' });
+    return { status: r.status };
+  } catch (e) { return { status: 0, error: errCode(e) }; }
 }
 
-export async function checkLinks(linkMap, fetchFn, { concurrency = 8, cap = 300 } = {}) {
+async function probe(url, fetchFn, retryDelayMs) {
+  let r = await attempt(url, fetchFn, 'HEAD');
+  if (r.error || r.status >= 500) {
+    await sleep(retryDelayMs);
+    r = await attempt(url, fetchFn, 'GET');
+  }
+  return r;
+}
+
+export async function checkLinks(linkMap, fetchFn, { concurrency = 4, cap = 300, baseOrigin, retryDelayMs = 500 } = {}) {
   const entries = [...linkMap].filter(([u]) => /^https?:/i.test(u)).slice(0, cap);
   const broken = [];
+  const unverified = [];
   let next = 0;
   const worker = async () => {
     while (next < entries.length) {
       const [url, from] = entries[next++];
-      const s = await status(url, fetchFn);
-      if (s === 0 || s >= 400) broken.push({ url, status: s, from: [...new Set(from)] });
+      const { status, error } = await probe(url, fetchFn, retryDelayMs);
+      if (status > 0 && status < 400) continue;
+      const item = { url, status, ...(error ? { error } : {}), from: [...new Set(from)] };
+      const internal = new URL(url).origin === baseOrigin;
+      (status === 404 || status === 410 || internal ? broken : unverified).push(item);
     }
   };
   await Promise.all(Array.from({ length: Math.min(concurrency, entries.length) }, worker));
-  return broken;
+  return { broken, unverified };
 }
 
 export function buildLinkMap(pages) {
