@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Post-launch check</title>
+<meta name="description" content="Run the after-launch website checklist on the live site.">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<header><a href="../../">qa-skills</a><a href="https://github.com/backend-timedoor/qa-skills">GitHub</a></header>
+<main>
+<p class="crumbs"><a href="../../">Home</a> / post-launch-check</p>
+<h1>post-launch-check <span class="badge">v0.1.0</span></h1>
+<p>Run the Timedoor after-launch checklist against the live site. A Playwright runner crawls the site and runs the checks it can verify, Claude reviews the judgment rows from the captured evidence, and you get a report you can sync to Notion.</p>
+
+<h2>Install</h2>
+<pre><code>/plugin install post-launch-check@qa-skills</code></pre>
+<p>First time? Add the marketplace: <code>/plugin marketplace add backend-timedoor/qa-skills</code>
+(see <a href="../../#getting-started">Getting started</a>). Then run this in your project:</p>
+<pre><code>/setup-post-launch-check</code></pre>
+
+<h2>What it checks</h2>
+<table>
+<tr><th>Type</th><th>Meaning</th><th>Examples</th></tr>
+<tr><td><code>auto</code></td><td>The script decides pass or fail</td><td>meta tags, headings, OG, robots, HTTPS, 404, links, images, PageSpeed</td></tr>
+<tr><td><code>review</code></td><td>Claude judges from captured evidence</td><td>titles, alt text, breadcrumb, URL slugs</td></tr>
+<tr><td><code>manual</code></td><td>A human checks, with the steps listed</td><td>Figma colors and fonts, responsive layout, contrast</td></tr>
+</table>
+
+<h2>Post-launch expectations</h2>
+<ul>
+<li>robots.txt allows crawling</li>
+<li>Meta robots is <code>index, follow</code></li>
+<li>Google Analytics script is present (confirm numbers with the PM)</li>
+<li>PageSpeed mobile at least 55 and desktop at least 85</li>
+</ul>
+
+<h2>Run it</h2>
+<pre><code>run the post-launch-check skill</code></pre>
+<p>Output goes to <code>launch-check/post/&lt;date&gt;/</code> (<code>report.md</code>, <code>report.json</code>, <code>evidence.json</code>).</p>
+
+<h2>Notion sync (optional)</h2>
+<p>Results sync to a separate checklist database with the properties Check, Key, ID, Phase, Site, Group, Status, Pages affected, Evidence, Reviewer and Run date. Set <code>NOTION_TOKEN</code> and <code>NOTION_CHECKLIST_DB_ID</code> in <code>.env</code>, and ask for a dry run first. Testers' edits to Status are never overwritten by a later sync.</p>
+
+<h2>See also</h2>
+<ul>
+<li><a href="../pre-launch-check/">pre-launch-check</a></li>
+</ul>
+</main>
+<footer>MIT License</footer>
+<script>
+document.querySelectorAll('pre').forEach(function(p){
+  var b=document.createElement('button');b.className='copy';b.textContent='Copy';
+  b.onclick=function(){navigator.clipboard.writeText(p.innerText.replace(/Copy$/,'').trim()).then(function(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy'},1500)})};
+  p.appendChild(b);
+});
+</script>
+</body>
+</html>

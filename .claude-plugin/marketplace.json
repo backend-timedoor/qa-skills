@@ -1,12 +1,22 @@
 {
   "name": "qa-skills",
-  "description": "QA skills for Claude Code: test cases, Notion upload, Playwright automation.",
+  "description": "QA skills for Claude Code: test cases, Notion upload, Playwright automation, launch checklists.",
   "owner": { "name": "Jhon Salya" },
   "plugins": [
     {
       "name": "qa-ai-flow",
       "source": "./plugins/qa-ai-flow",
       "description": "Dev site, repo or Figma designs to test cases, Notion upload, and Playwright automation."
+    },
+    {
+      "name": "pre-launch-check",
+      "source": "./plugins/pre-launch-check",
+      "description": "Run the before-launch website checklist on a dev/staging site and get a report."
+    },
+    {
+      "name": "post-launch-check",
+      "source": "./plugins/post-launch-check",
+      "description": "Run the after-launch website checklist on the live site and get a report."
     }
   ]
 }

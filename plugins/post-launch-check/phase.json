@@ -1,0 +1,4 @@
+{
+  "phase": "post",
+  "expectations": { "robotsMode": "allow", "metaRobots": "index, follow" }
+}

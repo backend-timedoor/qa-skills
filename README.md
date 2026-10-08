@@ -18,8 +18,18 @@ Claude Code plugins for QA: turn a dev site, repo, Figma design or PRD into test
 | | `testcase-generator` | Dev site, repo, Figma screenshot and/or PRD (any mix) to `testcases.json` |
 | | `notion-testcase-uploader` | Upload test cases to Notion, update after re-check, sync Playwright results back |
 | | `playwright-from-testcases` | `testcases.json` to POM + Playwright specs |
+| `pre-launch-check` | `setup-pre-launch-check` | One-time setup (config, env, Playwright runner) |
+| | `pre-launch-check` | Run the before-launch checklist on a dev/staging site |
+| | `review-checklist` | Claude's judgment pass over a run |
+| `post-launch-check` | `setup-post-launch-check` | One-time setup (config, env, Playwright runner) |
+| | `post-launch-check` | Run the after-launch checklist on the live site |
+| | `review-checklist` | Claude's judgment pass over a run |
 
 The Notion scripts are in `plugins/qa-ai-flow/scripts/`.
+
+## Launch checklists
+
+Install either plugin the same way (`/plugin install pre-launch-check@qa-skills` or `post-launch-check@qa-skills`), then run its setup skill once. Edit shared logic only in `shared/launch-checks/`, then run `shared/launch-checks/sync.sh`. A pre-commit hook (enable with `git config core.hooksPath .githooks`) fails on drift.
 
 ## Prerequisites
 
