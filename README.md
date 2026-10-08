@@ -29,7 +29,7 @@ The Notion scripts are in `plugins/qa-ai-flow/scripts/`.
 
 ## Launch checklists
 
-Install either plugin the same way (`/plugin install pre-launch-check@qa-skills` or `post-launch-check@qa-skills`), then run its setup skill once. Edit shared logic only in `shared/launch-checks/`, then run `shared/launch-checks/sync.sh`. A pre-commit hook (enable with `git config core.hooksPath .githooks`) fails on drift.
+Install either plugin the same way (`/plugin install pre-launch-check@qa-skills` or `post-launch-check@qa-skills`), then run its setup skill once. Edit shared logic only in `shared/launch-checks/`, then run `shared/launch-checks/sync.sh`. Check for drift by hand with `shared/launch-checks/sync.sh --check`.
 
 ## Prerequisites
 

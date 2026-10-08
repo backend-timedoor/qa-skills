@@ -2,7 +2,7 @@
 
 Source of truth for the launch-check plugins. Edit here, then run ./sync.sh; never edit plugins/*/vendor/ by hand.
 
-Opt in to the drift check on commit with: git config core.hooksPath .githooks
+Check that the plugin copies match this folder with: ./sync.sh --check
 
 ## Evidence shape
 
