@@ -5,3 +5,5 @@ __pycache__/
 .env.test
 .DS_Store
 .idea/
+.worktrees/
+.superpowers/
