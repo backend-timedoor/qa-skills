@@ -1,0 +1,7 @@
+{
+  "name": "post-launch-check",
+  "version": "0.1.0",
+  "description": "Run the Timedoor after-launch website checklist on the live site: automated SEO, indexing, analytics, HTTPS, performance and image checks, Claude review, and a report with optional Notion sync.",
+  "author": { "name": "Jhon Salya" },
+  "license": "MIT"
+}

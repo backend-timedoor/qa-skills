@@ -1,0 +1,8 @@
+{
+  "baseUrl": "https://staging.example.com",
+  "pageCap": 30,
+  "extraUrls": [],
+  "figmaUrl": "",
+  "language": "en",
+  "thresholds": { "pagespeedMobile": 55, "pagespeedDesktop": 85, "imageKb": 100, "heroImageKb": 200 }
+}

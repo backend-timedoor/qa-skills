@@ -1,0 +1,4 @@
+{
+  "phase": "pre",
+  "expectations": { "robotsMode": "block", "metaRobots": "noindex, nofollow" }
+}
