@@ -29,13 +29,23 @@ export async function extractPage(page) {
         .map(m => ({ name: m.getAttribute('name'), property: m.getAttribute('property'), content: m.getAttribute('content') }))
         .filter(m => m.name || m.property),
       headings: [...document.querySelectorAll('h1,h2,h3,h4,h5,h6')].map(h => ({ level: Number(h.tagName[1]), text: clean(h.textContent) })),
-      images: [...document.images].map(i => {
+      images: [...document.images].filter(i => {
+        // Drop placeholders/trackers: empty src, src pointing at the page itself, or 0x0 with no lazy sources.
+        const lazy = ['srcset', 'data-src', 'data-lazy-src', 'data-srcset'].some(a => i.hasAttribute(a));
+        const attr = (i.getAttribute('src') || '').trim();
+        if (!attr && !(i.currentSrc || '').trim() && !lazy) return false;
+        const norm = u => u.replace(/#.*$/, '').replace(/\/$/, '');
+        if (norm(i.currentSrc || i.src) === norm(location.href)) return false;
+        const r = i.getBoundingClientRect();
+        return !(i.naturalWidth === 0 && Math.round(r.width) === 0 && Math.round(r.height) === 0 && !lazy);
+      }).map(i => {
         const r = i.getBoundingClientRect();
         const src = i.currentSrc || i.src;
         return {
           src, alt: i.getAttribute('alt'), loading: i.getAttribute('loading'), bytes: sizes.get(src) ?? null,
           width: Math.round(r.width), height: Math.round(r.height),
           naturalWidth: i.naturalWidth, naturalHeight: i.naturalHeight, inViewport: r.top < window.innerHeight,
+          objectFit: getComputedStyle(i).objectFit,
         };
       }),
       links: [...document.querySelectorAll('a[href]')].map(a => ({ href: abs(a.getAttribute('href')), text: clean(a.textContent) })).filter(l => l.href),
