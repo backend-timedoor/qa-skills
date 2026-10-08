@@ -81,7 +81,7 @@ test('withTimeout aborts a hanging request; callers treat it as a failure', asyn
   const hang = (u, init) => new Promise((_, rej) => init.signal.addEventListener('abort', () => rej(new Error('aborted'))));
   const f = withTimeout(hang, 20);
   await assert.rejects(f('https://s.test/'), /aborted/);
-  const broken = await checkLinks(new Map([['https://s.test/x', ['p']]]), f);
+  const { broken } = await checkLinks(new Map([['https://s.test/x', ['p']]]), f, { baseOrigin: 'https://s.test', retryDelayMs: 0 });
   assert.deepEqual(broken.map(b => b.status), [0]);
   const s = await probeSite('https://s.test/', null, f);
   assert.equal(s.redirects.http.error, 'aborted');

@@ -7,7 +7,7 @@ export const page = (o = {}) => ({
 export const site = (o = {}) => ({
   expectedHost: 'x.test', robots: { status: 200, body: '' },
   redirects: { http: { finalUrl: 'https://x.test/' }, wwwHttp: { finalUrl: 'https://x.test/' } },
-  notFound: { status: 404 }, brokenLinks: [], scripts: { captcha: false, ga: false },
+  notFound: { status: 404 }, brokenLinks: [], unverifiedLinks: [], scripts: { captcha: false, ga: false },
   basicAuth: { challenged: false }, pagespeed: { mobile: 80, desktop: 90, error: null }, ...o,
 });
 export const evidence = (pages = [page()], s = site()) => ({

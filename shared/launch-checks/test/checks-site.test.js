@@ -59,6 +59,14 @@ test('LINK-001 / LINK-002', () => {
   const r = run('LINK-001', { brokenLinks: [{ url: 'https://x.test/gone', status: 404, from: ['https://x.test/'] }] });
   assert.equal(r.status, 'fail');
   assert.deepEqual(r.pages, ['https://x.test/']);
+  assert.match(r.reason, /https:\/\/x\.test\/gone \(404\)/);
+  const e = run('LINK-001', { brokenLinks: [{ url: 'https://x.test/t', status: 0, error: 'ETIMEDOUT', from: ['https://x.test/'] }] });
+  assert.match(e.reason, /https:\/\/x\.test\/t \(ETIMEDOUT\)/);
+  const u = run('LINK-001', { unverifiedLinks: [{ url: 'https://ext.test/a', status: 403, from: ['https://x.test/p'] }] });
+  assert.equal(u.status, 'review-needed');
+  assert.match(u.reason, /1 external link\(s\) could not be verified.*https:\/\/ext\.test\/a.*Check them by hand\./);
+  assert.deepEqual(u.pages, ['https://x.test/p']);
+  assert.equal(site['LINK-001'](evidence([page()], (({ unverifiedLinks, ...r }) => r)(mkSite())), post).status, 'pass');
   assert.equal(run('LINK-002').status, 'pass');
   assert.equal(run('LINK-002', { notFound: { status: 200 } }).status, 'fail');
 });
@@ -69,7 +77,9 @@ test('HTTPS-001 / HTTPS-002', () => {
   assert.equal(run('HTTPS-001', { redirects: { http: { error: 'ECONNREFUSED' }, wwwHttp: {} } }).status, 'fail');
   assert.equal(run('HTTPS-002').status, 'pass');
   assert.equal(run('HTTPS-002', { redirects: { http: {}, wwwHttp: { finalUrl: 'https://www.x.test/' } } }).status, 'fail');
-  assert.equal(run('HTTPS-002', { redirects: { http: {}, wwwHttp: { error: 'ENOTFOUND' } } }).status, 'review-needed');
+  assert.equal(run('HTTPS-002', { redirects: { http: {}, wwwHttp: { error: 'ENOTFOUND' } } }).status, 'n/a');
+  assert.equal(run('HTTPS-002', { redirects: { http: {}, wwwHttp: { error: 'ENODATA' } } }).status, 'n/a');
+  assert.equal(run('HTTPS-002', { redirects: { http: {}, wwwHttp: { error: 'ETIMEDOUT' } } }).status, 'review-needed');
 });
 
 test('PERF-001 compares scores to thresholds and degrades to review-needed', () => {
@@ -79,4 +89,5 @@ test('PERF-001 compares scores to thresholds and degrades to review-needed', () 
   const r = run('PERF-001', { pagespeed: { mobile: null, desktop: null, error: 'HTTP 429' } });
   assert.equal(r.status, 'review-needed');
   assert.match(r.reason, /pagespeed\.web\.dev/);
+  assert.match(r.reason, /PAGESPEED_API_KEY/);
 });

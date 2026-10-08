@@ -10,7 +10,7 @@ Check that the plugin copies match this folder with: ./sync.sh --check
 evidence = {
   baseUrl, capturedAt,
   pages: [{ url, status, error?, isHome, title, metas:[{name,property,content}],
-            headings:[{level,text}], images:[{src,alt,loading,bytes,width,height,naturalWidth,naturalHeight,inViewport}],
+            headings:[{level,text}], images:[{src,alt,loading,bytes,width,height,naturalWidth,naturalHeight,inViewport,objectFit}],
             links:[{href,text}], footer:{text,creditLink:{href,target,color}|null,textColor}|null,
             bodyText, scripts:{captcha,ga}, favicon, breadcrumb, mapEmbeds, forms:[{fields:[{type,name,required}]}] }],
   site:  { expectedHost, robots:{status,body}, redirects:{http:{finalUrl,error?}, wwwHttp:{finalUrl,error?}},

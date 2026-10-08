@@ -60,3 +60,28 @@ test('emptyPage builds a failed page record that checks can ignore', () => {
   assert.equal(p.status, 0);
   assert.deepEqual(p.headings, []);
 });
+
+const GIF = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
+const IMG_HTML = `<!doctype html><html><head><title>Imgs</title></head><body>
+<img src="${GIF}" alt="real">
+<img src="" alt="empty">
+<img alt="nosrc">
+<img src="/p/#top" alt="self">
+<img src="/p/" alt="selfslash">
+<img data-src="/lazy.jpg" alt="lazy" style="width:0;height:0">
+<img src="${GIF}" alt="cover" style="object-fit:cover">
+</body></html>`;
+
+test('extractPage drops phantom images, keeps lazy data-src ones, reports objectFit', async () => {
+  const context = await browser.newContext();
+  await context.route('**/*', (route) => route.request().url().startsWith('http://a.test/p/')
+    ? route.fulfill({ status: 200, contentType: 'text/html', body: IMG_HTML })
+    : route.abort());
+  const page = await context.newPage();
+  await page.goto('http://a.test/p/#frag', { waitUntil: 'load' });
+  const d = await extractPage(page);
+  assert.deepEqual(d.images.map(i => i.alt), ['real', 'lazy', 'cover']);
+  assert.equal(d.images[0].objectFit, 'fill');
+  assert.equal(d.images[2].objectFit, 'cover');
+  await context.close();
+});

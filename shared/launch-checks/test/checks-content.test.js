@@ -23,6 +23,18 @@ test('IMG-001 uses 100KB for normal and 200KB for wide images, skipping unknown 
   assert.equal(run(images, 'IMG-001', [page({ images: [img({ bytes: null })] })]).status, 'pass');
 });
 
+test('IMG-001 counts distinct images and names the heaviest', () => {
+  const kb = (n) => n * 1024;
+  const pages = [
+    page({ url: 'https://x.test/a', images: [img({ src: 'https://x.test/up/big.jpg', bytes: kb(300) }), img({ src: 'https://x.test/up/mid.jpg', bytes: kb(150) })] }),
+    page({ url: 'https://x.test/b', images: [img({ src: 'https://x.test/up/big.jpg', bytes: kb(300) })] }),
+  ];
+  const r = run(images, 'IMG-001', pages);
+  assert.equal(r.status, 'fail');
+  assert.match(r.reason, /^2 distinct image\(s\) over the size limit \(3 occurrence\(s\)\); heaviest: big\.jpg 300KB on https:\/\/x\.test\/a, mid\.jpg 150KB on https:\/\/x\.test\/a$/);
+  assert.deepEqual(r.pages, ['https://x.test/a', 'https://x.test/b']);
+});
+
 test('IMG-001 honours custom thresholds', () => {
   const c = ctx({ thresholds: { imageKb: 50, heroImageKb: 200, pagespeedMobile: 55, pagespeedDesktop: 85 } });
   assert.equal(run(images, 'IMG-001', [page({ images: [img({ bytes: 60 * 1024 })] })], c).status, 'fail');

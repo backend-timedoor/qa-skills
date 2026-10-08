@@ -27,7 +27,7 @@ Input: a run folder such as `launch-check/pre/2026-10-08` (ask for it if not giv
    | SEO-013 | image `alt` vs `src` file name and nearby headings | alt describes the image rather than being a file name or "image" |
    | SEO-014 | `favicon` | present, and not a framework default (for example a Next.js, Laravel or WordPress logo path) |
    | MAP-001 | `mapEmbeds` and page `url` | pages that mention a map or contact info contain at least one embed |
-   | IMG-003 | image `width`/`height` vs `naturalWidth`/`naturalHeight` | rendered aspect ratio within 5% of natural; no image rendered more than 2x its natural size |
+   | IMG-003 | image `width`/`height` vs `naturalWidth`/`naturalHeight` and `objectFit` | no image rendered more than 2x its natural size; for images with `objectFit: "fill"` (the default) the rendered aspect ratio is within 5% of the natural one; ignore aspect differences when objectFit is cover, contain, scale-down or none (they are cropped/letterboxed by design) |
    | UI-009 | `bodyText` | no placeholder wording ("your text here", "sample", "TBD", "coming soon" blocks) |
    | UI-016, UI-017 | `forms` | `unsure`: error messages only appear after submitting, which a crawl does not do |
 

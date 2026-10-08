@@ -1,4 +1,4 @@
-import { ok, bad, review, verdict } from '../lib/result.js';
+import { ok, bad, review, na, verdict } from '../lib/result.js';
 import { livePages } from '../lib/pages.js';
 import { robotsBlocksAll } from '../lib/robots.js';
 import { metaOf } from './meta.js';
@@ -44,8 +44,12 @@ export default {
 
   'LINK-001': (ev) => {
     const broken = ev.site.brokenLinks;
-    return broken.length
-      ? bad(`${broken.length} broken link(s): ${broken.slice(0, 5).map(b => `${b.url} (${b.status})`).join(', ')}`, [...new Set(broken.flatMap(b => b.from))])
+    if (broken.length) {
+      return bad(`${broken.length} broken link(s): ${broken.slice(0, 5).map(b => `${b.url} (${b.error || b.status})`).join(', ')}`, [...new Set(broken.flatMap(b => b.from))]);
+    }
+    const unverified = ev.site.unverifiedLinks || [];
+    return unverified.length
+      ? { ...review(`${unverified.length} external link(s) could not be verified (bot protection or timeout): ${unverified.slice(0, 5).map(u => u.url).join(', ')}. Check them by hand.`), pages: [...new Set(unverified.flatMap(u => u.from))] }
       : ok();
   },
 
@@ -59,6 +63,7 @@ export default {
 
   'HTTPS-002': (ev) => {
     const r = ev.site.redirects.wwwHttp;
+    if (r.error === 'ENOTFOUND' || r.error === 'ENODATA') return na('http://www host has no DNS record, so there is nothing to redirect');
     if (r.error) return review(`Could not request the http://www host (${r.error}); check it by hand`);
     let host = '';
     try { host = new URL(r.finalUrl).host; } catch { /* handled below */ }
@@ -69,7 +74,7 @@ export default {
   'PERF-001': (ev, ctx) => {
     const { mobile, desktop, error } = ev.site.pagespeed;
     if (mobile == null || desktop == null) {
-      return review(`PageSpeed unavailable (${error || 'no result'}); run pagespeed.web.dev by hand`);
+      return review(`PageSpeed unavailable (${error || 'no result'}); set PAGESPEED_API_KEY in .env (free key from Google Cloud) or run pagespeed.web.dev by hand`);
     }
     const { pagespeedMobile, pagespeedDesktop } = ctx.thresholds;
     const problems = [];
