@@ -2,7 +2,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { crawl } from './crawler.js';
 import { extractPage, emptyPage } from './extract.js';
-import { makeFetch, probeSite } from './probes.js';
+import { makeFetch, probeSite, withTimeout } from './probes.js';
 import { checkLinks } from './links.js';
 import { fetchPagespeed } from './pagespeed.js';
 
@@ -17,10 +17,12 @@ function loadPlaywright() {
 export async function captureEvidence({ config, creds, pagespeedKey, onProgress = () => {} }) {
   const { chromium } = loadPlaywright();
   const base = new URL(config.baseUrl);
-  const authedFetch = makeFetch(config.baseUrl, creds);
+  const pagespeedFetch = withTimeout(fetch, 60000);
+  const timedFetch = withTimeout(fetch, config.timeoutMs);
+  const authedFetch = makeFetch(config.baseUrl, creds, timedFetch);
   const browser = await chromium.launch();
-  const context = await browser.newContext(creds ? { httpCredentials: { username: creds.user, password: creds.password } } : {});
   try {
+    const context = await browser.newContext(creds ? { httpCredentials: { username: creds.user, password: creds.password, origin: base.origin } } : {});
     const visit = async (url) => {
       const page = await context.newPage();
       try {
@@ -47,10 +49,10 @@ export async function captureEvidence({ config, creds, pagespeedKey, onProgress 
     const linkMap = new Map();
     for (const p of pages) for (const l of p.links) linkMap.set(l.href, [...(linkMap.get(l.href) || []), p.url]);
     const [probes, brokenLinks, mobile, desktop] = await Promise.all([
-      probeSite(config.baseUrl, creds),
+      probeSite(config.baseUrl, creds, timedFetch),
       checkLinks(linkMap, authedFetch),
-      fetchPagespeed(config.baseUrl, 'mobile', pagespeedKey),
-      fetchPagespeed(config.baseUrl, 'desktop', pagespeedKey),
+      fetchPagespeed(config.baseUrl, 'mobile', pagespeedKey, pagespeedFetch),
+      fetchPagespeed(config.baseUrl, 'desktop', pagespeedKey, pagespeedFetch),
     ]);
     const live = pages.filter(p => !p.error && p.status < 400);
     return {

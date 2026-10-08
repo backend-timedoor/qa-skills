@@ -30,7 +30,7 @@ export async function crawl({ baseUrl, pageCap, extraUrls = [], fetchText, visit
   const origin = new URL(baseUrl).origin;
   const sitemapUrls = await readSitemap(origin, fetchText, pageCap);
   const followLinks = sitemapUrls.length === 0;
-  const queue = [stripHash(baseUrl), ...extraUrls.map(stripHash), ...sitemapUrls];
+  const queue = [stripHash(baseUrl), ...extraUrls.map(u => sameOriginPage(u, origin, baseUrl)).filter(Boolean), ...sitemapUrls];
   const seen = new Set();
   const pages = [];
   while (queue.length && pages.length < pageCap) {

@@ -53,3 +53,26 @@ test('probeSite collects robots, redirects, 404 and basic auth', async () => {
   assert.equal(s.notFound.status, 404);
   assert.equal(s.basicAuth.challenged, false);
 });
+
+test('withTimeout injects an AbortSignal and preserves a caller signal', async () => {
+  const { withTimeout } = await import('../capture/probes.js');
+  let init1;
+  await withTimeout(async (u, i) => { init1 = i; return resp(200); }, 1000)('https://s.test/');
+  assert.ok(init1.signal instanceof AbortSignal);
+  const mine = new AbortController().signal;
+  let init2;
+  await withTimeout(async (u, i) => { init2 = i; return resp(200); }, 1000)('https://s.test/', { signal: mine });
+  assert.equal(init2.signal, mine);
+});
+
+test('withTimeout aborts a hanging request; callers treat it as a failure', async () => {
+  const { withTimeout } = await import('../capture/probes.js');
+  const { checkLinks } = await import('../capture/links.js');
+  const hang = (u, init) => new Promise((_, rej) => init.signal.addEventListener('abort', () => rej(new Error('aborted'))));
+  const f = withTimeout(hang, 20);
+  await assert.rejects(f('https://s.test/'), /aborted/);
+  const broken = await checkLinks(new Map([['https://s.test/x', ['p']]]), f);
+  assert.deepEqual(broken.map(b => b.status), [0]);
+  const s = await probeSite('https://s.test/', null, f);
+  assert.equal(s.redirects.http.error, 'aborted');
+});

@@ -1,4 +1,6 @@
-export async function fetchPagespeed(url, strategy, apiKey, fetchFn = fetch) {
+import { withTimeout } from './probes.js';
+
+export async function fetchPagespeed(url, strategy, apiKey, fetchFn = withTimeout(fetch, 60000)) {
   const q = new URLSearchParams({ url, strategy, category: 'performance' });
   if (apiKey) q.set('key', apiKey);
   try {

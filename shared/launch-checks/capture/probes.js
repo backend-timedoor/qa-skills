@@ -1,5 +1,9 @@
 import { robotsBlocksAll } from '../lib/robots.js';
 
+export function withTimeout(rawFetch = fetch, ms = 15000) {
+  return (url, init = {}) => rawFetch(url, init.signal ? init : { ...init, signal: AbortSignal.timeout(ms) });
+}
+
 export function makeFetch(baseUrl, creds, rawFetch = fetch) {
   const origin = new URL(baseUrl).origin;
   const auth = creds ? 'Basic ' + Buffer.from(`${creds.user}:${creds.password}`).toString('base64') : null;

@@ -63,3 +63,13 @@ test('a visit that returns a failed page does not stop the crawl', async () => {
   assert.equal(pages.length, 2);
   assert.equal(pages[1].error, 'timeout');
 });
+
+test('drops foreign-origin extra URLs and keeps same-origin ones', async () => {
+  const seen = [];
+  await crawl({
+    baseUrl: 'https://s.test/', pageCap: 10, extraUrls: ['https://evil.test/x', 'https://s.test/ok'],
+    fetchText: async () => { throw new Error('none'); },
+    visit: visitor({}, seen),
+  });
+  assert.deepEqual(seen, ['https://s.test/', 'https://s.test/ok']);
+});
