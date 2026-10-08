@@ -40,6 +40,20 @@ test('CRAWL-002 meta robots follows the phase; absent tag means index, follow', 
   assert.deepEqual(r.pages, ['https://x.test/']);
 });
 
+test('CRAWL-002 is token based for real-world values', () => {
+  for (const v of ['max-image-preview:large', 'index, follow, max-image-preview:large, max-snippet:-1', 'all', 'INDEX,FOLLOW'])
+    assert.equal(run('CRAWL-002', {}, post, [robotsMeta(v)]).status, 'pass', v);
+  for (const v of ['noindex', 'nofollow', 'none', 'noindex, nofollow, max-image-preview:large'])
+    assert.equal(run('CRAWL-002', {}, post, [robotsMeta(v)]).status, 'fail', v);
+  for (const v of ['noindex, nofollow, max-image-preview:large', 'none', 'NoIndex , NoFollow'])
+    assert.equal(run('CRAWL-002', {}, pre, [robotsMeta(v)]).status, 'pass', v);
+  for (const v of ['nofollow', 'index, follow', 'all'])
+    assert.equal(run('CRAWL-002', {}, pre, [robotsMeta(v)]).status, 'fail', v);
+  const both = page({ metas: [{ name: 'robots', property: null, content: 'index, follow' }, { name: 'googlebot', property: null, content: 'noindex' }] });
+  assert.equal(run('CRAWL-002', {}, post, [both]).status, 'fail');
+  assert.match(run('CRAWL-002', {}, post, [robotsMeta('noindex')]).reason, /noindex/);
+});
+
 test('LINK-001 / LINK-002', () => {
   assert.equal(run('LINK-001').status, 'pass');
   const r = run('LINK-001', { brokenLinks: [{ url: 'https://x.test/gone', status: 404, from: ['https://x.test/'] }] });

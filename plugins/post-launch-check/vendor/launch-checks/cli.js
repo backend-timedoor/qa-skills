@@ -33,7 +33,12 @@ async function run(flags) {
   const phaseCfg = loadPhase(flags.phase);
   const creds = process.env.BASIC_AUTH_USER ? { user: process.env.BASIC_AUTH_USER, password: process.env.BASIC_AUTH_PASSWORD || '' } : null;
 
-  const warning = detectPhaseMismatch(phaseCfg.phase, await probeHome(config.baseUrl, creds, withTimeout(fetch, config.timeoutMs)));
+  const probe = await probeHome(config.baseUrl, creds, withTimeout(fetch, config.timeoutMs));
+  if (probe.reachable === false) {
+    console.error(`Cannot reach ${config.baseUrl}: ${probe.cause || 'request failed'}`);
+    return 1;
+  }
+  const warning = detectPhaseMismatch(phaseCfg.phase, probe);
   if (warning && !flags.yes) {
     console.error(`WARNING: ${warning}\nRe-run with --yes to continue.`);
     return 2;

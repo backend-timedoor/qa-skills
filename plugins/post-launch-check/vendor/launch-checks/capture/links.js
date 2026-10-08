@@ -20,3 +20,17 @@ export async function checkLinks(linkMap, fetchFn, { concurrency = 8, cap = 300 
   await Promise.all(Array.from({ length: Math.min(concurrency, entries.length) }, worker));
   return broken;
 }
+
+export function buildLinkMap(pages) {
+  const map = new Map();
+  for (const p of pages) {
+    for (const l of p.links || []) {
+      let u;
+      try { u = new URL(l.href); } catch { continue; }
+      if (!/^https?:$/.test(u.protocol)) continue;
+      u.hash = '';
+      map.set(u.href, [...(map.get(u.href) || []), p.url]);
+    }
+  }
+  return map;
+}

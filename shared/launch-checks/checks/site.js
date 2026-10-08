@@ -3,7 +3,7 @@ import { livePages } from '../lib/pages.js';
 import { robotsBlocksAll } from '../lib/robots.js';
 import { metaOf } from './meta.js';
 
-const normRobots = (s) => (s || '').toLowerCase().split(',').map(x => x.trim()).filter(Boolean).sort().join(',');
+const tokens = (s) => (s || '').toLowerCase().split(',').map(x => x.trim()).filter(Boolean);
 
 export default {
   'AUTH-001': (ev) => ev.site.basicAuth.challenged ? ok() : bad('The site did not ask for basic auth'),
@@ -22,13 +22,24 @@ export default {
   },
 
   'CRAWL-002': (ev, ctx) => {
-    const want = normRobots(ctx.expectations.metaRobots);
+    const wantNoindex = tokens(ctx.expectations.metaRobots).includes('noindex');
+    const satisfies = (content) => {
+      const t = tokens(content);
+      return wantNoindex
+        ? t.includes('none') || (t.includes('noindex') && t.includes('nofollow'))
+        : !['noindex', 'nofollow', 'none'].some(x => t.includes(x));
+    };
+    const seen = [];
     const offenders = livePages(ev).filter(p => {
       const tags = [...metaOf(p, 'robots'), ...metaOf(p, 'googlebot')];
-      if (tags.length === 0) return want !== normRobots('index, follow');
-      return tags.some(t => normRobots(t.content) !== want);
+      const contents = tags.length === 0 ? ['index, follow'] : tags.map(t => t.content);
+      const badOne = contents.find(c => !satisfies(c));
+      if (badOne === undefined) return false;
+      seen.push(tags.length === 0 ? 'no robots tag' : `"${badOne}"`);
+      return true;
     }).map(p => p.url);
-    return verdict(offenders, `page(s) whose meta robots / googlebot is not "${ctx.expectations.metaRobots}"`);
+    const r = verdict(offenders, `page(s) whose meta robots / googlebot is not "${ctx.expectations.metaRobots}"`);
+    return offenders.length ? { ...r, reason: `${r.reason} (e.g. ${[...new Set(seen)].slice(0, 3).join(', ')})` } : r;
   },
 
   'LINK-001': (ev) => {

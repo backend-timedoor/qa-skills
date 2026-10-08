@@ -96,7 +96,7 @@ def build_properties(row, meta, key):
 def update_properties(row, meta, key, existing_status):
     props = build_properties(row, meta, key)
     del props["Reviewer"]
-    if existing_status not in PLACEHOLDER_STATUSES:
+    if existing_status not in PLACEHOLDER_STATUSES and row.get("type") != "auto":
         del props["Status"]
     return props
 

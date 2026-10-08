@@ -3,7 +3,8 @@ import path from 'node:path';
 import { crawl } from './crawler.js';
 import { extractPage, emptyPage } from './extract.js';
 import { makeFetch, probeSite, withTimeout } from './probes.js';
-import { checkLinks } from './links.js';
+import { checkLinks, buildLinkMap } from './links.js';
+import { isHomeUrl } from './home.js';
 import { fetchPagespeed } from './pagespeed.js';
 
 function loadPlaywright() {
@@ -29,9 +30,8 @@ export async function captureEvidence({ config, creds, pagespeedKey, onProgress 
         const resp = await page.goto(url, { waitUntil: 'load', timeout: config.timeoutMs });
         const status = resp ? resp.status() : 0;
         const data = await extractPage(page);
-        const u = new URL(url);
         onProgress(`visited ${url} (${status})`);
-        return { url, status, isHome: u.origin === base.origin && u.pathname === '/', ...data };
+        return { url, status, isHome: isHomeUrl(url, config.baseUrl), ...data };
       } catch (e) {
         onProgress(`failed ${url}: ${e.message}`);
         return emptyPage(url, e.message);
@@ -46,8 +46,7 @@ export async function captureEvidence({ config, creds, pagespeedKey, onProgress 
     };
     const pages = await crawl({ baseUrl: config.baseUrl, pageCap: config.pageCap, extraUrls: config.extraUrls, fetchText, visit });
 
-    const linkMap = new Map();
-    for (const p of pages) for (const l of p.links) linkMap.set(l.href, [...(linkMap.get(l.href) || []), p.url]);
+    const linkMap = buildLinkMap(pages);
     const [probes, brokenLinks, mobile, desktop] = await Promise.all([
       probeSite(config.baseUrl, creds, timedFetch),
       checkLinks(linkMap, authedFetch),

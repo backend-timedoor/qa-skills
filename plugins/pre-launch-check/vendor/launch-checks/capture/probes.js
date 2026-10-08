@@ -21,7 +21,12 @@ export async function probeHome(baseUrl, creds, rawFetch = fetch) {
   const origin = new URL(baseUrl).origin;
   const authed = makeFetch(baseUrl, creds, rawFetch);
   let basicAuth = false;
-  try { basicAuth = (await rawFetch(baseUrl, { redirect: 'follow' })).status === 401; } catch { /* unreachable: treated as no auth */ }
+  let reachable = true;
+  let cause;
+  try { basicAuth = (await rawFetch(baseUrl, { redirect: 'follow' })).status === 401; } catch (e) {
+    reachable = false;
+    cause = e.cause?.code || e.name || e.message;
+  }
   let metaNoindex = false;
   try { metaNoindex = NOINDEX.test(await (await authed(baseUrl, { redirect: 'follow' })).text()); } catch { /* ignore */ }
   let robotsBlocked = false;
@@ -29,7 +34,7 @@ export async function probeHome(baseUrl, creds, rawFetch = fetch) {
     const r = await authed(`${origin}/robots.txt`);
     robotsBlocked = r.status === 200 && robotsBlocksAll(await r.text());
   } catch { /* ignore */ }
-  return { robotsBlocked, metaNoindex, basicAuth };
+  return reachable ? { robotsBlocked, metaNoindex, basicAuth, reachable } : { robotsBlocked, metaNoindex, basicAuth, reachable, cause };
 }
 
 async function redirectProbe(url, rawFetch) {

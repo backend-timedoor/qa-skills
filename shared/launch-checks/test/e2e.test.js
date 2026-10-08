@@ -79,11 +79,11 @@ test('merge-review and render update the report', async () => {
   } finally { await s.close(); }
 });
 
-test('an unreachable site yields error rows, not a crash', async () => {
+test('an unreachable site exits 1 with a clear message, even with --yes', async () => {
   const dir = project('http://127.0.0.1:1/', 'post');
   const r = await cliRun(dir, ['run', '--config', 'config.json', '--phase', 'phase.json', '--out', 'out', '--yes']);
-  assert.equal(r.status, 0, r.stderr);
-  assert.equal(rows(dir, 'out')['SEO-005'].status, 'error');
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /Cannot reach http:\/\/127\.0\.0\.1:1\//);
 });
 
 test('bad config prints a clear error and exits 1', async () => {

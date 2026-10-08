@@ -56,13 +56,23 @@ class PropertiesTest(unittest.TestCase):
 
     def test_update_never_touches_reviewer_and_protects_tester_status(self):
         for tester_status in ("pass", "fail", "n/a"):
-            u = s.update_properties(row(status="manual-todo"), META, "k", tester_status)
+            u = s.update_properties(row(type="manual", status="manual-todo"), META, "k", tester_status)
             self.assertNotIn("Status", u)
             self.assertNotIn("Reviewer", u)
         for placeholder in ("manual-todo", "review-needed", None):
             u = s.update_properties(row(status="pass"), META, "k", placeholder)
             self.assertEqual(u["Status"]["select"]["name"], "pass")
             self.assertNotIn("Reviewer", u)
+
+    def test_auto_row_status_is_always_written_on_update(self):
+        for existing in ("fail", "pass", "n/a", "manual-todo", None):
+            u = s.update_properties(row(type="auto", status="pass"), META, "k", existing)
+            self.assertEqual(u["Status"]["select"]["name"], "pass")
+            self.assertNotIn("Reviewer", u)
+
+    def test_review_row_edited_by_tester_stays_protected(self):
+        u = s.update_properties(row(type="review", status="review-needed"), META, "k", "pass")
+        self.assertNotIn("Status", u)
 
 
 class SyncTest(unittest.TestCase):

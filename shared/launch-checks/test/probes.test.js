@@ -29,12 +29,22 @@ test('probeHome detects basic auth, noindex and robots disallow', async () => {
     if (url.endsWith('/robots.txt')) return resp(200, { body: 'User-agent: *\nDisallow: /' });
     return resp(404);
   };
-  assert.deepEqual(await probeHome('https://s.test/', creds, raw), { robotsBlocked: true, metaNoindex: true, basicAuth: true });
+  assert.deepEqual(await probeHome('https://s.test/', creds, raw), { robotsBlocked: true, metaNoindex: true, basicAuth: true, reachable: true });
 });
 
 test('probeHome on an open site reports nothing', async () => {
   const raw = async (url) => url.endsWith('/robots.txt') ? resp(404) : resp(200, { body: '<html></html>' });
-  assert.deepEqual(await probeHome('https://s.test/', null, raw), { robotsBlocked: false, metaNoindex: false, basicAuth: false });
+  assert.deepEqual(await probeHome('https://s.test/', null, raw), { robotsBlocked: false, metaNoindex: false, basicAuth: false, reachable: true });
+});
+
+test('probeHome reports reachable=false when the base request fails, true for HTTP errors', async () => {
+  const down = async () => { throw Object.assign(new Error('fetch failed'), { cause: { code: 'ECONNREFUSED' } }); };
+  const r = await probeHome('https://s.test/', null, down);
+  assert.equal(r.reachable, false);
+  assert.equal(r.cause, 'ECONNREFUSED');
+  for (const status of [401, 404, 503]) {
+    assert.equal((await probeHome('https://s.test/', null, async () => resp(status))).reachable, true, String(status));
+  }
 });
 
 test('probeSite collects robots, redirects, 404 and basic auth', async () => {

@@ -36,3 +36,12 @@ test('respects the cap', async () => {
   await checkLinks(map, fetchFn, { cap: 4 });
   assert.equal(n, 4);
 });
+
+test('buildLinkMap strips fragments, merges from-lists and keeps only http(s)', async () => {
+  const { buildLinkMap } = await import('../capture/links.js');
+  const map = buildLinkMap([
+    { url: 'https://a.test/', links: [{ href: 'https://a.test/x#a' }, { href: 'https://a.test/x#b' }, { href: 'mailto:x@y.z' }, { href: 'not a url' }] },
+    { url: 'https://a.test/p', links: [{ href: 'https://a.test/x' }] },
+  ]);
+  assert.deepEqual([...map], [['https://a.test/x', ['https://a.test/', 'https://a.test/', 'https://a.test/p']]]);
+});
