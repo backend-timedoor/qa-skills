@@ -1,0 +1,13 @@
+{
+  "name": "launch-checks",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "test:py": "python3 -m unittest discover -s notion -p 'test_*.py'"
+  },
+  "devDependencies": {
+    "playwright": "1.49.1"
+  }
+}
