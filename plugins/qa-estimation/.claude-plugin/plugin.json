@@ -1,0 +1,7 @@
+{
+  "name": "qa-estimation",
+  "version": "0.1.0",
+  "description": "Estimate QA tester man-hours for an inquiry from its PRD, spec and module list (AI-powered, black-box), fill the Tester column of the Timedoor quotation sheet, and build a QA breakdown workbook.",
+  "author": { "name": "Jhon Salya" },
+  "license": "MIT"
+}

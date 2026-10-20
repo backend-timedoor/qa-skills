@@ -1,0 +1,241 @@
+{
+ "title": "Contoh E-commerce B2C + MLM",
+ "output": "/abs/path/qa-manhours-contoh.xlsx",
+ "notes": [
+  "Estimasi berbasis AI-powered QA: test case di-generate AI dari PRD (acceptance criteria, edge cases, DoD) lalu di-review & dilengkapi QA; AI membantu test plan, data uji, bug report, analisis log/payload, dan skrip load test. Eksekusi test tetap manual.",
+  "Dasar scope: module-quotation.md (19 modul). Pickup & Pembayaran Tunai dari PRD/spec dihitung terpisah sebagai opsional dan tidak masuk Grand Total.",
+  "Estimasi dalam man hours (jam), breakdown per modul. Kolom 'Test Case' = analisis requirement modul + penulisan test case (positif, negatif, edge case dari PRD §5–6).",
+  "Siklus 1 = eksekusi functional & integration test penuh + bug report. Retest & regression hanya untuk modul krusial: Tier 1 (M04, M05, M07, M08, M17) 50% dan Tier 2 (M03, M06, M10) 25% dari eksekusi siklus 1, dibulatkan ke atas per jam; ditambah final regression E2E 4 jam di M19. Modul lain: retest bug tanpa regression, ditanggung buffer.",
+  "Aktivitas persiapan (analisis requirement, test plan, data uji), E2E lintas modul, cross-browser, security, load test, UAT, smoke test, dan test report sudah digabung ke modul terkait (lihat kolom Cakupan Test).",
+  "Integration test bersifat black-box/end-to-end: QA memverifikasi hasil akhir di website & admin. Signature, idempotency, timeout, retry/backoff, mapping error, dan sanitasi log dites developer melalui unit/integration test.",
+  "Tidak termasuk automation E2E (Playwright) dan unit test (tanggung jawab developer).",
+  "Sandbox DOKU, aggregator ongkir (baseline RajaOngkir), dan API MLM client tersedia saat QA mulai; API spec MLM sudah disepakati.",
+  "Data uji di sandbox MLM (ID member aktif, nonaktif, upline 3 level dan <3 level) disediakan / dibantu client.",
+  "Load test p95 ≤ 2 detik serta backup & uji restore tidak termasuk QA; dikerjakan BE/DevOps.",
+  "Cross-browser: 2 versi terbaru Chrome, Safari, Firefox, Edge + mobile web mulai 360 px (sesuai spec NFR Compatibility).",
+  "Security test oleh QA bersifat black-box (HTTPS redirect, lockout login, akses tanpa login/role). Hash password, CSRF, dan masking credential di log dites developer; bukan penetration test pihak ketiga.",
+  "UAT dijalankan client; QA mendampingi maksimal 2 sesi UAT, mencatat feedback, dan retest hasil UAT. Sesi tambahan ± 3–4 jam per sesi."
+ ],
+ "sections": [
+  {
+   "name": "WEB",
+   "modules": [
+    {
+     "no": 1,
+     "id": "M01",
+     "name": "Landing & Konten Publik",
+     "scope": "Global layout & navigasi, landing section, blog listing (kategori, search, pagination, empty), blog detail & artikel terkait, responsive 360 px; cross-browser Chrome/Safari/Firefox/Edge + mobile web",
+     "tc": 4,
+     "ex": 11,
+     "note": ""
+    },
+    {
+     "no": 2,
+     "id": "M02",
+     "name": "Katalog Produk",
+     "scope": "Listing & search, product detail, bundle detail; harga normal vs member, estimasi PV, validasi qty vs stok & produk nonaktif",
+     "tc": 2.5,
+     "ex": 7,
+     "note": ""
+    },
+    {
+     "no": 3,
+     "id": "M03",
+     "name": "Autentikasi & Akun Customer",
+     "scope": "Register (email/telepon unik), login/logout, reset password 30 menit, profil, address book (alamat utama), order history",
+     "tc": 4,
+     "ex": 12,
+     "note": "Tautan kedaluwarsa dites dengan masa berlaku diperpendek di staging",
+     "tier": 2
+    },
+    {
+     "no": 4,
+     "id": "M04",
+     "name": "Membership & Harga Member",
+     "scope": "Link/unlink ID MLM, 1 akun : 1 ID, normalisasi input, variasi respons API MLM (aktif, nonaktif, tidak ditemukan, gagal koneksi), penerapan harga member & fallback harga normal",
+     "tc": 3,
+     "ex": 9,
+     "note": "Tergantung kesiapan sandbox API MLM",
+     "tier": 1
+    },
+    {
+     "no": 5,
+     "id": "M05",
+     "name": "Cart & Checkout",
+     "scope": "Cart CRUD & subtotal, guest checkout, alamat, pilihan kurir & tarif Lion Parcel/J&T/TIKI, voucher, ringkasan total, revalidasi stok/harga/promo/tarif, payment status, guest order tracking; E2E guest card + pengiriman; pembayaran DOKU (berhasil, ditolak, halaman ditutup, expiry → batal & stok kembali)",
+     "tc": 6,
+     "ex": 26,
+     "note": "Modul paling kritis; termasuk E2E DOKU (M14) & ongkir (M15). Aturan voucher dites di M07, harga member di M04, alamat utama di M03",
+     "tier": 1
+    }
+   ]
+  },
+  {
+   "name": "ADMIN",
+   "modules": [
+    {
+     "no": 6,
+     "id": "M06",
+     "name": "Produk, Bundle & Stok",
+     "scope": "Login/reset admin, CRUD kategori, produk (SKU unik, harga/PV tidak negatif), bundle min. 2 item, arsip produk di bundle aktif, penyesuaian stok, snapshot order lama; data uji produk & bundle",
+     "tc": 4,
+     "ex": 11,
+     "note": "",
+     "tier": 2
+    },
+    {
+     "no": 7,
+     "id": "M07",
+     "name": "Promo & Gratis Ongkir",
+     "scope": "CRUD promo/voucher & gratis ongkir; engine diskon: minimum belanja, periode, kuota, target produk/kategori, batas per customer, kombinasi promo; data uji voucher",
+     "tc": 5,
+     "ex": 13,
+     "note": "Kombinasi aturan promo perlu matriks skenario",
+     "tier": 1
+    },
+    {
+     "no": 8,
+     "id": "M08",
+     "name": "Pesanan & Fulfillment",
+     "scope": "Order list & filter, order detail, transisi status valid/invalid termasuk delivered otomatis dari provider, histori, input resi & shipment, pembatalan & refund tanpa reversal PV",
+     "tc": 5,
+     "ex": 14,
+     "note": "",
+     "tier": 1
+    },
+    {
+     "no": 9,
+     "id": "M09",
+     "name": "CMS Blog & Testimoni",
+     "scope": "CRUD artikel (slug unik, format gambar), kategori artikel, testimoni; publish/unpublish tercermin di website",
+     "tc": 1.5,
+     "ex": 6,
+     "note": ""
+    },
+    {
+     "no": 10,
+     "id": "M10",
+     "name": "User Internal, Role & Audit",
+     "scope": "CRUD user internal, nonaktif & session ditolak, Super Admin terakhir, RBAC 3 role di seluruh modul admin, audit log read-only (nilai lama/baru)",
+     "tc": 2.5,
+     "ex": 9,
+     "note": "Uji akses dilakukan per role untuk tiap modul",
+     "tier": 2
+    },
+    {
+     "no": 11,
+     "id": "M11",
+     "name": "Dashboard & Notifikasi Internal",
+     "scope": "Widget dashboard (order baru, perlu diproses, bayar hari ini, integrasi gagal), notification center, tandai dibaca, visibilitas per role",
+     "tc": 1.5,
+     "ex": 4,
+     "note": ""
+    },
+    {
+     "no": 12,
+     "id": "M12",
+     "name": "Laporan Penjualan & PV",
+     "scope": "Filter & rentang tanggal, ringkasan omzet/diskon/ongkir/PV, rincian transaksi, rekonsiliasi angka vs data order, export CSV sesuai filter, empty state",
+     "tc": 2,
+     "ex": 7,
+     "note": ""
+    },
+    {
+     "no": 13,
+     "id": "M13",
+     "name": "Log Transaksi PV",
+     "scope": "PV log (status, attempt, waktu, respons), credential/token tidak tampil di layar, retry manual: status berubah, attempt bertambah, tombol nonaktif saat proses",
+     "tc": 1.5,
+     "ex": 3.5,
+     "note": "Sanitasi payload & idempotency key dites developer"
+    }
+   ]
+  },
+  {
+   "name": "BACKEND & INFRA",
+   "modules": [
+    {
+     "no": 14,
+     "id": "M14",
+     "name": "Pembayaran DOKU",
+     "scope": "Tidak ada test terpisah — pembayaran DOKU dites end-to-end di M05 (Checkout & Payment Status page)",
+     "tc": 0,
+     "ex": 0,
+     "note": "Signature & callback berulang dites developer"
+    },
+    {
+     "no": 15,
+     "id": "M15",
+     "name": "Ongkir & Pengiriman Multi-Kurir",
+     "scope": "Tidak ada test terpisah — tarif & kurir dites di M05 (Checkout, Revalidasi), resi/shipment & delivered di M08",
+     "tc": 0,
+     "ex": 0,
+     "note": ""
+    },
+    {
+     "no": 16,
+     "id": "M16",
+     "name": "Integrasi Sistem MLM",
+     "scope": "Tidak ada test terpisah — validasi ID dites di M04 Membership page, upline & kirim PV di M17, notifikasi gagal di M11",
+     "tc": 0,
+     "ex": 0,
+     "note": "Review API spec, adapter, timeout, mapping error & sanitasi log oleh BE/developer; butuh data uji dari client"
+    },
+    {
+     "no": 17,
+     "id": "M17",
+     "name": "Otomasi PV & Upline",
+     "scope": "Snapshot PV order lama tidak berubah; E2E member checkout → selesai → PV Sent ≤ 60 detik; status Failed + notifikasi saat gagal (simulasi dibantu developer); eksklusi guest/non-member/batal; upline < 3",
+     "tc": 3,
+     "ex": 9,
+     "note": "Mekanisme retry/backoff & idempotency dites developer",
+     "tier": 1
+    },
+    {
+     "no": 18,
+     "id": "M18",
+     "name": "Email Transaksional",
+     "scope": "Email terkirim & isi sesuai untuk tiap status order (dibuat, bayar, dikirim, selesai, batal, refund) dan reset password",
+     "tc": 1,
+     "ex": 2.5,
+     "note": "Mekanisme queue/retry dites developer"
+    },
+    {
+     "no": 19,
+     "id": "M19",
+     "name": "Fondasi, Keamanan & Release",
+     "scope": "Test plan; sapuan konsistensi UI states web & admin + cross-browser admin; security black-box (HTTPS redirect, akses halaman tanpa login); pendampingan UAT (maks. 2 sesi); smoke test alur kritis production + cek domain & email pengirim; test report & sign-off",
+     "tc": 6,
+     "ex": 25,
+     "note": "Load test p95 & backup/restore dikerjakan BE/DevOps. Retest = final regression E2E 4 alur kritis sebelum go-live",
+     "retest": 4
+    }
+   ]
+  }
+ ],
+ "optional": {
+  "title": "OPSIONAL — PICKUP & PEMBAYARAN TUNAI (di PRD/spec, tidak ada di quotation; TIDAK termasuk Grand Total)",
+  "modules": [
+   {
+    "no": "",
+    "id": "OPT-1",
+    "name": "Pickup & Pembayaran Tunai",
+    "scope": "Pickup info di checkout, pickup queue, transisi Waiting → Ready → Paid → Collected, konfirmasi cash terkunci & audit, konkurensi 2 user, scheduler expiry 3 hari + stok kembali",
+    "tc": 3,
+    "ex": 13,
+    "note": "",
+    "tier": 1
+   },
+   {
+    "no": "",
+    "id": "OPT-2",
+    "name": "Dampak ke modul lain",
+    "scope": "Metode bayar (cash hanya pickup), email siap diambil, dashboard pickup < 24 jam, laporan cash vs card, PV terpicu saat Collected, order history/tracking status pickup",
+    "tc": 2,
+    "ex": 10,
+    "note": "",
+    "tier": 1
+   }
+  ]
+ }
+}

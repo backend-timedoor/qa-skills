@@ -1,6 +1,6 @@
 {
   "name": "qa-skills",
-  "description": "QA skills for Claude Code: test cases, Notion upload, Playwright automation, launch checklists.",
+  "description": "QA skills for Claude Code: test cases, Notion upload, Playwright automation, launch checklists, inquiry QA estimation.",
   "owner": { "name": "Jhon Salya" },
   "plugins": [
     {
@@ -17,6 +17,11 @@
       "name": "post-launch-check",
       "source": "./plugins/post-launch-check",
       "description": "Run the after-launch website checklist on the live site and get a report."
+    },
+    {
+      "name": "qa-estimation",
+      "source": "./plugins/qa-estimation",
+      "description": "Estimate QA tester man-hours for an inquiry and fill the Tester column of the quotation sheet."
     }
   ]
 }

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QA estimation</title>
+<meta name="description" content="Estimate QA tester man-hours for an inquiry and fill the Tester column of the quotation sheet.">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<header><a href="../../">qa-skills</a><a href="https://github.com/backend-timedoor/qa-skills">GitHub</a></header>
+<main>
+<p class="crumbs"><a href="../../">Home</a> / qa-estimation</p>
+<h1>qa-estimation <span class="badge">v0.1.0</span></h1>
+<p>Estimate the tester man-hours for an inquiry from its PRD, spec, notes and module list, fill the <code>Tester (hrs)</code> column of the Timedoor quotation workbook, and build a QA breakdown workbook to go with it. The estimate assumes AI-powered, black-box QA: test cases are generated from the PRD and reviewed, and testers verify what users and admins can see.</p>
+
+<h2>Install</h2>
+<pre><code>/plugin install qa-estimation@qa-skills</code></pre>
+<p>First time? Add the marketplace: <code>/plugin marketplace add backend-timedoor/qa-skills</code>
+(see <a href="../../#getting-started">Getting started</a>). The scripts need Python 3 and <code>openpyxl</code>:</p>
+<pre><code>pip install openpyxl</code></pre>
+
+<h2>Run it</h2>
+<p>Open Claude Code in the inquiry folder (PRD, spec, notes, module list and <code>*Quotation-Context.xlsx</code>) and ask, for example:</p>
+<pre><code>buatkan man hours QA untuk inquiry ini dan isi kolom Tester di quotation</code></pre>
+<p>Claude reads every document, asks about scope differences (for example a module that is in the PRD but not in the quotation), estimates each task row, and shows the numbers before writing anything.</p>
+
+<h2>How the hours are built</h2>
+<table>
+<tr><th>Rule</th><th>What it means</th></tr>
+<tr><td>Per task row</td><td>Tester hours = writing/reviewing test cases + one execution cycle, sized by the scenarios in the PRD, not by FE hours.</td></tr>
+<tr><td>Black-box</td><td>Signatures, idempotency, retries, log sanitising, load tests and backups go to developers or DevOps (0 tester hours, noted in the Notes column).</td></tr>
+<tr><td>Test once</td><td>Integrations (payment, shipping, third-party APIs) are tested end-to-end on the page that shows the result; the integration rows get 0 with a pointer.</td></tr>
+<tr><td>Critical retest</td><td>Retest &amp; regression only for money, price, points and order-status modules (50%), auth, RBAC and master data (25%), plus a final E2E regression.</td></tr>
+</table>
+
+<h2>Output</h2>
+<ul>
+<li>The <code>Tester (hrs)</code> and <code>Notes</code> cells of the quotation's Quotation sheet. Nothing else is touched, a backup is made first, and the Timeline sheet's formulas stay intact.</li>
+<li><code>qa-manhours-&lt;project&gt;.xlsx</code>: test scope, test case, execution and retest hours per module, an internal buffer, calendar duration and editable assumptions.</li>
+</ul>
+
+<h2>Review and trim</h2>
+<p>Ask Claude to review an existing estimate (<code>cek apakah ada yang tumpang tindih dan bisa dipangkas</code>). Each proposal is tagged as an overlap with another module, outside black-box, or too loose, and nothing is written until you confirm.</p>
+
+<h2>See also</h2>
+<ul>
+<li><a href="../qa-ai-flow/">qa-ai-flow</a></li>
+<li><a href="../pre-launch-check/">pre-launch-check</a></li>
+</ul>
+</main>
+<footer>MIT License</footer>
+<script>
+document.querySelectorAll('pre').forEach(function(p){
+  var b=document.createElement('button');b.className='copy';b.textContent='Copy';
+  b.onclick=function(){navigator.clipboard.writeText(p.innerText.replace(/Copy$/,'').trim()).then(function(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy'},1500)})};
+  p.appendChild(b);
+});
+</script>
+</body>
+</html>
